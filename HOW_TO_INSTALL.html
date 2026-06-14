@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — How to Install as an App</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:#fdf8ff;color:#1a1028;min-height:100vh;}
+
+/* Header */
+.header{background:linear-gradient(135deg,#5b3fa0,#7c5cbf,#a78bde);padding:40px 0;text-align:center;position:relative;overflow:hidden;}
+.header::before{content:'💜';position:absolute;font-size:200px;opacity:.06;top:-40px;right:-20px;}
+.header::after{content:'📱';position:absolute;font-size:150px;opacity:.08;bottom:-30px;left:10px;}
+.header-gem{width:60px;height:60px;background:rgba(255,255,255,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;backdrop-filter:blur(10px);}
+.header h1{font-family:'DM Serif Display',serif;font-size:38px;color:#fff;margin-bottom:8px;}
+.header p{font-size:16px;color:rgba(255,255,255,.8);max-width:500px;margin:0 auto;}
+
+.container{max-width:880px;margin:0 auto;padding:40px 20px;}
+
+/* Big option cards */
+.option-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#7c5cbf;margin-bottom:8px;display:block;}
+.section-title{font-family:'DM Serif Display',serif;font-size:30px;color:#1a1028;margin-bottom:6px;}
+.section-sub{font-size:14px;color:#7a6d92;margin-bottom:28px;line-height:1.6;}
+
+/* BEST METHOD card */
+.best-card{background:linear-gradient(135deg,#7c5cbf,#a78bde);border-radius:24px;padding:32px;margin-bottom:32px;position:relative;overflow:hidden;}
+.best-card::before{content:'⭐ EASIEST';position:absolute;top:20px;right:24px;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:20px;}
+.best-card h2{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:8px;}
+.best-card p{color:rgba(255,255,255,.85);font-size:14px;line-height:1.7;margin-bottom:24px;}
+.steps-white{display:flex;flex-direction:column;gap:10px;}
+.sw{background:rgba(255,255,255,.15);border-radius:14px;padding:16px 20px;display:flex;align-items:flex-start;gap:16px;backdrop-filter:blur(10px);}
+.sw-num{width:32px;height:32px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;flex-shrink:0;margin-top:1px;}
+.sw-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.sw-desc{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
+.sw-code{background:rgba(0,0,0,.2);border-radius:8px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#e9d5ff;margin-top:6px;display:inline-block;}
+.phone-demo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;}
+.pd{background:rgba(255,255,255,.12);border-radius:14px;padding:16px;text-align:center;}
+.pd-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.pd-sub{font-size:12px;color:rgba(255,255,255,.7);}
+.pd-icon{font-size:32px;margin-bottom:8px;display:block;}
+
+/* Method cards */
+.methods{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;}
+.mc{background:#fff;border:1.5px solid #ede8f5;border-radius:20px;padding:24px;position:relative;overflow:hidden;transition:all .2s;}
+.mc:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(90,50,160,.1);}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0;}
+.mc-win::before{background:linear-gradient(90deg,#0078d4,#50a0ff);}
+.mc-phone::before{background:linear-gradient(90deg,#34a853,#4caf50);}
+.mc-pwa::before{background:linear-gradient(90deg,#7c5cbf,#a78bde);}
+.mc-cloud::before{background:linear-gradient(90deg,#ff6b6b,#ffa500);}
+.mc-badge{display:inline-flex;align-items:center;gap:5px;background:#f5f0ff;border:1px solid #ddd6fe;color:#5b3fa0;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:12px;}
+.mc h3{font-family:'DM Serif Display',serif;font-size:20px;color:#1a1028;margin-bottom:6px;}
+.mc p{font-size:13px;color:#7a6d92;line-height:1.65;margin-bottom:14px;}
+.mc-steps{display:flex;flex-direction:column;gap:6px;}
+.mcs{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:#fdf8ff;border-radius:10px;}
+.mcs-n{width:22px;height:22px;background:var(--c,#7c5cbf);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.mcs-t{font-size:12.5px;color:#3d2c5c;line-height:1.5;}
+.mcs-t code{background:#ede8ff;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5b3fa0;}
+.diff{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.diff-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.d-easy{background:#ecfdf5;color:#059669;}
+.d-med{background:#fffbeb;color:#b45309;}
+.d-hard{background:#fff1f2;color:#e11d48;}
+
+/* Download section */
+.dl-section{background:#fff;border:1.5px solid #ede8f5;border-radius:20px;padding:28px;margin-bottom:32px;}
+.dl-section h2{font-family:'DM Serif Display',serif;font-size:22px;color:#1a1028;margin-bottom:6px;}
+.dl-section p{font-size:13.5px;color:#7a6d92;margin-bottom:20px;line-height:1.6;}
+.dl-files{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dlf{background:#fdf8ff;border:1.5px solid #ede8f5;border-radius:14px;padding:18px;display:flex;align-items:center;gap:14px;transition:all .18s;cursor:default;}
+.dlf:hover{border-color:#a78bde;box-shadow:0 4px 16px rgba(124,92,191,.1);}
+.dlf-icon{font-size:32px;flex-shrink:0;}
+.dlf-title{font-size:14px;font-weight:700;color:#1a1028;margin-bottom:3px;}
+.dlf-desc{font-size:12px;color:#7a6d92;}
+.dlf-badge{font-size:10px;background:#f5f0ff;border:1px solid #ddd6fe;color:#5b3fa0;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px;font-weight:600;}
+
+/* FAQ */
+.faq{margin-bottom:40px;}
+.faq h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:16px;color:#1a1028;}
+.fq{background:#fff;border:1.5px solid #ede8f5;border-radius:14px;padding:18px 20px;margin-bottom:8px;cursor:pointer;transition:all .18s;}
+.fq:hover{border-color:#a78bde;}
+.fq-q{font-size:14px;font-weight:700;color:#1a1028;display:flex;justify-content:space-between;align-items:center;}
+.fq-a{font-size:13px;color:#7a6d92;line-height:1.7;margin-top:10px;display:none;}
+.fq.open .fq-a{display:block;}
+.fq.open .fq-arr{transform:rotate(180deg);}
+.fq-arr{transition:transform .2s;font-size:12px;color:#7c5cbf;}
+
+/* Footer */
+.footer{background:#1a1028;border-radius:20px;padding:28px;text-align:center;color:rgba(255,255,255,.6);font-size:13px;}
+.footer strong{color:#a78bde;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-gem">💜</div>
+  <h1>Make FinVault Your App</h1>
+  <p>Simple step-by-step guide to install FinVault on your phone, computer, or share it online</p>
+</div>
+
+<div class="container">
+
+  <!-- BEST METHOD: PWA on Phone -->
+  <div style="margin-bottom:10px">
+    <span class="option-label">Best Option for Most People</span>
+    <div class="section-title">Install on Your Phone Right Now</div>
+    <div class="section-sub">No app store needed. Works like a real app. Takes 2 minutes.</div>
+  </div>
+
+  <div class="best-card">
+    <h2>📱 Install on Android or iPhone</h2>
+    <p>FinVault can be installed directly from your browser — no Play Store or App Store needed. It works just like a real app with its own icon on your home screen.</p>
+    <div class="steps-white">
+      <div class="sw">
+        <div class="sw-num">1</div>
+        <div>
+          <div class="sw-title">Start the backend on your computer</div>
+          <div class="sw-desc">Double-click <strong>MAKE_APP.bat</strong> (Windows) or run <strong>MAKE_APP.sh</strong> (Mac/Linux) in the FinVault folder.</div>
+        </div>
+      </div>
+      <div class="sw">
+        <div class="sw-num">2</div>
+        <div>
+          <div class="sw-title">Find your computer's IP address</div>
+          <div class="sw-desc">On Windows: Press Win+R → type <code class="sw-code">cmd</code> → type <code class="sw-code">ipconfig</code> → look for "IPv4 Address" like <code class="sw-code">192.168.1.5</code></div>
+          <div class="sw-desc" style="margin-top:6px">On Mac: System Settings → Wi-Fi → Details → IP Address</div>
+        </div>
+      </div>
+      <div class="sw">
+        <div class="sw-num">3</div>
+        <div>
+          <div class="sw-title">Open in phone browser (must be on same Wi-Fi!)</div>
+          <div class="sw-desc">Android: Open <strong>Chrome</strong> → type: <code class="sw-code">192.168.1.5:5500/frontend/home_app.html</code></div>
+          <div class="sw-desc" style="margin-top:4px">iPhone: Open <strong>Safari</strong> → type the same address</div>
+        </div>
+      </div>
+      <div class="sw">
+        <div class="sw-num">4</div>
+        <div>
+          <div class="sw-title">Add to Home Screen</div>
+          <div class="sw-desc">The phone will ask to "Add to Home Screen" automatically. If not:</div>
+          <div class="sw-desc" style="margin-top:4px">🤖 Android Chrome: Tap ⋮ menu → "Add to Home Screen" → "Install"</div>
+          <div class="sw-desc" style="margin-top:4px">🍎 iPhone Safari: Tap Share button (box with arrow) → "Add to Home Screen" → "Add"</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-demo">
+      <div class="pd"><span class="pd-icon">🤖</span><div class="pd-title">Android</div><div class="pd-sub">Chrome → ⋮ → Add to Home Screen</div></div>
+      <div class="pd"><span class="pd-icon">🍎</span><div class="pd-title">iPhone</div><div class="pd-sub">Safari → Share → Add to Home Screen</div></div>
+    </div>
+  </div>
+
+  <!-- Download the launchers -->
+  <div class="dl-section">
+    <h2>🖥 Run on Desktop (Windows / Mac / Linux)</h2>
+    <p>These files are already included in your FinVault folder. Just double-click to start the app.</p>
+    <div class="dl-files">
+      <div class="dlf">
+        <div class="dlf-icon">🪟</div>
+        <div>
+          <div class="dlf-title">MAKE_APP.bat</div>
+          <div class="dlf-desc">For Windows. Double-click this file to start FinVault and open it in your browser automatically.</div>
+          <div class="dlf-badge">Windows Only</div>
+        </div>
+      </div>
+      <div class="dlf">
+        <div class="dlf-icon">🍎🐧</div>
+        <div>
+          <div class="dlf-title">MAKE_APP.sh</div>
+          <div class="dlf-desc">For Mac and Linux. Open Terminal, drag this file in, press Enter to launch.</div>
+          <div class="dlf-badge">Mac / Linux</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other methods -->
+  <span class="option-label">More Options</span>
+  <div class="section-title">Other Ways to Use FinVault</div>
+  <div class="section-sub">From sharing with others to publishing on the internet.</div>
+
+  <div class="methods">
+
+    <div class="mc mc-win">
+      <div class="mc-badge">🪟 Windows</div>
+      <h3>Windows Desktop App (.exe)</h3>
+      <p>Turn FinVault into a proper Windows application that installs like any other program.</p>
+      <div class="mc-steps">
+        <div class="mcs"><div class="mcs-n" style="--c:#0078d4">1</div><div class="mcs-t">Install <code>Node.js</code> from nodejs.org</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#0078d4">2</div><div class="mcs-t">Run: <code>npm install electron electron-builder -D</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#0078d4">3</div><div class="mcs-t">Run: <code>npm run build</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#0078d4">4</div><div class="mcs-t">Get <code>FinVault-Setup.exe</code> in the dist folder</div></div>
+      </div>
+      <div class="diff"><span class="diff-pill d-med">⭐⭐ Medium</span><span class="diff-pill d-med">~30 min</span></div>
+    </div>
+
+    <div class="mc mc-phone">
+      <div class="mc-badge">📱 Android APK</div>
+      <h3>Android App (APK file)</h3>
+      <p>Build a real Android APK you can install on any Android phone or submit to the Play Store.</p>
+      <div class="mc-steps">
+        <div class="mcs"><div class="mcs-n" style="--c:#34a853">1</div><div class="mcs-t">Install <code>Node.js</code> + Android Studio</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#34a853">2</div><div class="mcs-t">Run: <code>npm install @capacitor/cli</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#34a853">3</div><div class="mcs-t">Run: <code>npx cap add android</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#34a853">4</div><div class="mcs-t">Open Android Studio → Build → Generate APK</div></div>
+      </div>
+      <div class="diff"><span class="diff-pill d-hard">⭐⭐⭐⭐ Hard</span><span class="diff-pill d-hard">~2 hours</span></div>
+    </div>
+
+    <div class="mc mc-pwa">
+      <div class="mc-badge">🌐 Share Online</div>
+      <h3>Put it on the Internet (Free)</h3>
+      <p>Deploy FinVault so anyone with the link can use it from anywhere. Backend goes on Railway, frontend on Vercel — both free.</p>
+      <div class="mc-steps">
+        <div class="mcs"><div class="mcs-n" style="--c:#7c5cbf">1</div><div class="mcs-t">Upload code to GitHub (free at github.com)</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#7c5cbf">2</div><div class="mcs-t">Go to <code>railway.app</code> → deploy backend</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#7c5cbf">3</div><div class="mcs-t">Go to <code>vercel.com</code> → deploy frontend folder</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#7c5cbf">4</div><div class="mcs-t">Share your link: <code>finvault.vercel.app</code></div></div>
+      </div>
+      <div class="diff"><span class="diff-pill d-med">⭐⭐ Medium</span><span class="diff-pill d-med">~1 hour</span></div>
+    </div>
+
+    <div class="mc mc-cloud">
+      <div class="mc-badge">⚡ Quickest .exe</div>
+      <h3>Python Desktop App (Simplest .exe)</h3>
+      <p>Bundle everything into one .exe file using PyInstaller. No Node.js required.</p>
+      <div class="mc-steps">
+        <div class="mcs"><div class="mcs-n" style="--c:#ff6b6b">1</div><div class="mcs-t">Run: <code>pip install pyinstaller pywebview</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#ff6b6b">2</div><div class="mcs-t">Create <code>launcher.py</code> (see HOW_TO_MAKE_APP.md)</div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#ff6b6b">3</div><div class="mcs-t">Run: <code>pyinstaller --onefile launcher.py</code></div></div>
+        <div class="mcs"><div class="mcs-n" style="--c:#ff6b6b">4</div><div class="mcs-t">Get <code>FinVault.exe</code> in the dist folder</div></div>
+      </div>
+      <div class="diff"><span class="diff-pill d-easy">⭐ Easy</span><span class="diff-pill d-easy">~20 min</span></div>
+    </div>
+
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <h2>❓ Common Questions</h2>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">My phone can't connect to the app <span class="fq-arr">▼</span></div>
+      <div class="fq-a">Make sure your phone and computer are on the <strong>same Wi-Fi network</strong>. Also check Windows Firewall — open Control Panel → Windows Defender Firewall → Allow an app → make sure Python is allowed. Try turning off firewall temporarily to test.</div>
+    </div>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">What is the backend / why do I need Python? <span class="fq-arr">▼</span></div>
+      <div class="fq-a">FinVault has two parts: the <strong>frontend</strong> (the screens you see — HTML/CSS) and the <strong>backend</strong> (the brain that saves your data — Python Flask). The backend stores transactions in a database. Without it, the app shows the UI but can't save or load any data.</div>
+    </div>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">Can I use it without running Python every time? <span class="fq-arr">▼</span></div>
+      <div class="fq-a">Yes! Use the <strong>Python Desktop App</strong> method (PyInstaller + pywebview). It bundles the Python backend and the frontend into one .exe file. Double-click it and everything starts automatically — no terminal needed.</div>
+    </div>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">Will my data be safe? Where is it stored? <span class="fq-arr">▼</span></div>
+      <div class="fq-a">Your data is stored locally in <strong>backend/finance.db</strong> — a SQLite file on your own computer. Nothing is sent to the internet unless you deploy to the cloud yourself. Your financial data never leaves your machine.</div>
+    </div>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">I see "Add to Home Screen" — is it really an app? <span class="fq-arr">▼</span></div>
+      <div class="fq-a">Yes! When you add it to your home screen from Chrome or Safari, it opens in its own window without the browser address bar — just like a real app. It has its own icon, loads instantly, and works in full screen. This is called a <strong>Progressive Web App (PWA)</strong>.</div>
+    </div>
+
+    <div class="fq" onclick="this.classList.toggle('open')">
+      <div class="fq-q">How do I back up my data? <span class="fq-arr">▼</span></div>
+      <div class="fq-a">Simply copy the file <strong>backend/finance.db</strong> to a safe location (USB drive, Google Drive, etc.). To restore, just put it back in the backend folder. You can also export all transactions as CSV from the Transactions page anytime.</div>
+    </div>
+  </div>
+
+  <!-- Quick start summary -->
+  <div style="background:linear-gradient(135deg,#f5f0ff,#ede8ff);border:1.5px solid #ddd6fe;border-radius:20px;padding:28px;margin-bottom:32px;text-align:center;">
+    <div style="font-size:36px;margin-bottom:12px">🚀</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#1a1028;margin-bottom:8px">Quick Start Summary</div>
+    <div style="font-size:14px;color:#7a6d92;line-height:1.9;max-width:500px;margin:0 auto">
+      <strong style="color:#5b3fa0">1.</strong> Double-click <code style="background:#ede8ff;border-radius:5px;padding:1px 7px;font-family:monospace;font-size:12.5px">MAKE_APP.bat</code> (Windows) — starts everything<br>
+      <strong style="color:#5b3fa0">2.</strong> It opens in your browser automatically<br>
+      <strong style="color:#5b3fa0">3.</strong> On phone: open the same URL on your phone → add to home screen<br>
+      <strong style="color:#5b3fa0">4.</strong> Done — FinVault is your personal finance app! 💜
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>FinVault</strong> · Built with Python Flask + Vanilla JS · Powered by <strong>Gemini Vision</strong><br>
+    <span style="margin-top:6px;display:block">Your financial data stays on your own computer — always private and secure.</span>
+  </div>
+
+</div>
+</body>
+</html>

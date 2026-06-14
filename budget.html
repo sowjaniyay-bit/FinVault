@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Budget</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+body{margin:0;}
+.bud-body{flex:1;overflow-y:auto;padding:18px 22px;display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start;}
+.bud-body::-webkit-scrollbar{width:4px;}
+.bud-body::-webkit-scrollbar-thumb{background:var(--lav);border-radius:4px;}
+.streak-bar{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.streak-bar.bad{background:linear-gradient(135deg,#fff5f0,#fffbeb);border-color:var(--peach);}
+.s-flame{font-size:26px;animation:bounce 2s ease-in-out infinite;}
+.s-num{font-family:'DM Serif Display',serif;font-size:26px;color:#059669;line-height:1;}
+.streak-bar.bad .s-num,.streak-bar.bad .s-lbl,.streak-bar.bad .s-msg{color:var(--amber);}
+.s-lbl{font-size:11px;font-weight:700;color:#065f46;}
+.s-msg{font-size:12px;color:#065f46;margin-top:1px;}
+.bud-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;}
+.bud-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.bud-card-sub{font-size:11px;color:var(--ink4);margin-bottom:14px;}
+.br{margin-bottom:12px;}
+.br-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.br-cat{font-size:12.5px;font-weight:600;color:var(--ink2);}
+.br-amt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink4);}
+.br-amt.over{color:var(--red);font-weight:700;}
+.bud-track{height:8px;background:var(--brd2);border-radius:4px;overflow:hidden;}
+.bud-fill{height:100%;border-radius:4px;transition:width 1s ease;background:var(--grad);}
+.bud-fill.warn{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.bud-fill.over{background:linear-gradient(90deg,var(--red),#fda4af);}
+.bud-pct{font-size:10px;color:var(--ink5);margin-top:2px;text-align:right;}
+.bud-pct.over{color:var(--red);font-weight:700;}
+.bf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.bf-f label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);display:block;margin-bottom:3px;}
+.bf-f input{background:var(--bg);border:1.5px solid var(--brd2);color:var(--ink);padding:7px 9px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12.5px;width:100%;transition:all .2s;}
+.bf-f input:focus{border-color:var(--v);outline:none;box-shadow:var(--sv);}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item on" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Finance</div><div class="pg-title">Budget Limits</div></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <div class="tb-avatar" id="tb-av" onclick="toggleMenu()">?</div>
+        <div class="tb-menu" id="tb-menu">
+          <div class="tb-menu-header"><div class="tb-menu-email" id="menu-email">—</div></div>
+          <a class="tb-menu-item" href="profile.html">👤 My Profile</a>
+          <div class="tb-menu-sep"></div>
+          <div class="tb-menu-item danger" onclick="logout()">↩ Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bud-body">
+    <div>
+      <div class="streak-bar" id="streak-card">
+        <div class="s-flame">🔥</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:7px"><div class="s-num" id="s-num">—</div><div class="s-lbl">day streak</div></div>
+          <div class="s-msg" id="s-msg">Loading…</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:#065f46;font-weight:700">This Month</div>
+          <div id="s-pct" style="font-family:'JetBrains Mono',monospace;font-size:20px;color:#059669;font-weight:700;line-height:1">—%</div>
+          <div style="font-size:10px;color:#065f46">of budget</div>
+        </div>
+      </div>
+      <div class="bud-card">
+        <div class="bud-card-title">This Month's Spending</div>
+        <div class="bud-card-sub">vs your limits · turns red when exceeded</div>
+        <div id="bud-bars"><div style="color:var(--ink4);font-size:12.5px">Load transactions to see status.</div></div>
+      </div>
+    </div>
+    <div class="bud-card">
+      <div class="bud-card-title">Set Monthly Limits</div>
+      <div class="bud-card-sub">₹ per month per category</div>
+      <div class="bf-grid" id="bf-grid"></div>
+      <button class="btn btn-primary" onclick="saveBudgets()" style="width:100%;padding:10px">💾 Save Limits</button>
+      <div id="save-msg" style="font-size:12px;margin-top:7px;text-align:center;min-height:14px"></div>
+    </div>
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const ICONS={Income:"💵",Subscription:"📺",Food:"🍔",Transport:"🚗",Travel:"✈️",Shopping:"🛍️",Utilities:"⚡",Health:"💊",Education:"📚",Entertainment:"🎬",Rent:"🏠",Other:"📦"};
+const DEFAULTS={Food:3000,Shopping:5000,Subscription:500,Transport:2000,Entertainment:1000,Utilities:2000,Health:2000,Education:3000,Travel:5000,Rent:15000,Other:2000};
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+function toggleMenu(){document.getElementById("tb-menu").classList.toggle("open");}
+document.addEventListener("click",e=>{if(!e.target.closest(".tb-avatar")&&!e.target.closest(".tb-menu"))document.getElementById("tb-menu").classList.remove("open");});
+async function apiFetch(url,opts={}){const r=await fetch(url,opts);if(r.status===401){localStorage.removeItem("authToken");window.location.href="login.html";throw new Error("401");}return r;}
+fetch(API+"/me",{headers:hdr()}).then(r=>r.json()).then(d=>{if(!d.email)return;const n=d.email.split("@")[0];document.getElementById("sb-av").textContent=n[0].toUpperCase();document.getElementById("tb-av").textContent=n[0].toUpperCase();document.getElementById("sb-email").textContent=d.email;document.getElementById("menu-email").textContent=d.email;}).catch(()=>{});
+let _budgets={};
+function populateForm(limits){
+  _budgets=limits;
+  document.getElementById("bf-grid").innerHTML=Object.keys(limits).map(c=>'<div class="bf-f"><label>'+(ICONS[c]||"📦")+" "+c+'</label><input type="number" id="bf-'+c+'" value="'+limits[c]+'" min="0"/></div>').join("");
+}
+function renderBars(status){
+  const entries=Object.entries(status).filter(([c])=>c!=="Income" && (status[c].spent>0||status[c].limit>0)).sort((a,b)=>b[1].pct-a[1].pct);
+  if(!entries.length){document.getElementById("bud-bars").innerHTML='<div style="color:var(--ink4);font-size:12.5px">Load transactions to see status.</div>';return;}
+
+  // Summary chips at top
+  const exceeded = entries.filter(([,i])=>i.exceeded).length;
+  const warn80   = entries.filter(([,i])=>i.pct>=80&&!i.exceeded).length;
+  const healthy  = entries.filter(([,i])=>i.pct<80).length;
+
+  const summary = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    ${exceeded?`<div style="background:var(--red-bg);border:1px solid var(--red-bd);border-radius:20px;padding:4px 12px;font-size:11.5px;font-weight:700;color:var(--red)">🚨 ${exceeded} exceeded</div>`:''}
+    ${warn80?`<div style="background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:20px;padding:4px 12px;font-size:11.5px;font-weight:700;color:#92400e">⚠️ ${warn80} near limit</div>`:''}
+    ${healthy?`<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:20px;padding:4px 12px;font-size:11.5px;font-weight:700;color:var(--green)">✅ ${healthy} healthy</div>`:''}
+  </div>`;
+
+  const bars = entries.map(([cat,info])=>{
+    const over=info.exceeded, warn=info.pct>=80&&!over;
+    const pct=Math.min(info.pct,100);
+    const remaining=Math.max(info.limit-info.spent,0);
+    const barColor=over?"linear-gradient(90deg,#e11d48,#fda4af)":warn?"linear-gradient(90deg,#f59e0b,#fcd34d)":"linear-gradient(90deg,#7c5cbf,#a78bde)";
+    const bg=over?"var(--red-bg)":warn?"var(--amber-bg)":"var(--bg)";
+    const border=over?"var(--red-bd)":warn?"var(--amber-bd)":"var(--brd)";
+
+    return `<div style="background:${bg};border:1.5px solid ${border};border-radius:var(--r);padding:11px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <span style="font-size:16px">${ICONS[cat]||'📦'}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--ink)">${cat}</span>
+          ${over?'<span style="font-size:10px;background:var(--red);color:#fff;padding:1px 7px;border-radius:20px;font-weight:700">OVER</span>':warn?'<span style="font-size:10px;background:#f59e0b;color:#fff;padding:1px 7px;border-radius:20px;font-weight:700">NEAR</span>':''}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;font-weight:700;color:${over?'var(--red)':warn?'#b45309':'var(--ink)'}">₹${info.spent.toLocaleString('en-IN')}<span style="font-size:10px;font-weight:400;color:var(--ink4)"> / ₹${info.limit.toLocaleString('en-IN')}</span></div>
+          <div style="font-size:10.5px;color:var(--ink4)">${over?'over by ₹'+(info.spent-info.limit).toLocaleString('en-IN'):'₹'+remaining.toLocaleString('en-IN')+' left'}</div>
+        </div>
+      </div>
+      <div style="height:10px;background:var(--brd2);border-radius:5px;overflow:hidden;">
+        <div class="bud-fill-new" style="height:100%;border-radius:5px;background:${barColor};width:0;transition:width 1s ease;" data-w="${pct}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <div style="font-size:10px;color:var(--ink4)">0%</div>
+        <div style="font-size:10.5px;font-weight:700;color:${over?'var(--red)':warn?'#b45309':'var(--v)'}">${info.pct}%</div>
+        <div style="font-size:10px;color:var(--ink4)">100%</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("bud-bars").innerHTML = summary + bars;
+  setTimeout(()=>document.querySelectorAll(".bud-fill-new").forEach(el=>el.style.width=el.dataset.w),150);
+}
+function calcStreak(txns,budgets){
+  const today=new Date(),month=today.toISOString().slice(0,7);
+  const monthTxns=txns.filter(t=>t.category!=="Income"&&t.date.startsWith(month));
+  const totalBudget=Object.values(budgets).reduce((a,b)=>a+b,0)||30000;
+  const byDay={};
+  for(const t of monthTxns)byDay[t.date]=(byDay[t.date]||0)+Math.abs(t.amount);
+  let streak=0,d=new Date(today);
+  for(let i=0;i<today.getDate();i++){const ds=d.toISOString().slice(0,10);if((byDay[ds]||0)<=totalBudget/30)streak++;else streak=0;d.setDate(d.getDate()-1);}
+  const totalSpent=monthTxns.reduce((a,t)=>a+Math.abs(t.amount),0);
+  const pct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
+  document.getElementById("s-num").textContent=streak;
+  document.getElementById("s-msg").textContent=streak===0?"Went over budget recently — keep going! 💪":streak<3?"Under budget "+streak+" day"+(streak>1?"s":"")+"! 🌱":streak<7?""+streak+" day streak! Keep it up 🌟":streak+"-day streak! You're crushing it! 🏆";
+  const pctEl=document.getElementById("s-pct");pctEl.textContent=pct+"%";pctEl.style.color=pct>100?"var(--red)":pct>80?"var(--amber)":"#059669";
+  if(streak===0)document.getElementById("streak-card").classList.add("bad");else document.getElementById("streak-card").classList.remove("bad");
+}
+async function loadAll(){
+  try{
+    const[status,limits,txns]=await Promise.all([
+      apiFetch(API+"/budget_status",{headers:hdr()}).then(r=>r.json()).catch(()=>({})),
+      apiFetch(API+"/budgets",{headers:hdr()}).then(r=>r.json()).catch(()=>DEFAULTS),
+      apiFetch(API+"/get_transactions",{headers:hdr()}).then(r=>r.json()).catch(()=>[])
+    ]);
+    populateForm(Object.keys(limits).length?limits:DEFAULTS);
+    if(Object.keys(status).length)renderBars(status);
+    calcStreak(txns,Object.keys(limits).length?limits:DEFAULTS);
+  }catch{populateForm(DEFAULTS);}
+}
+async function saveBudgets(){
+  const data={};for(const c of Object.keys(_budgets)){const el=document.getElementById("bf-"+c);if(el)data[c]=parseFloat(el.value)||0;}
+  const msg=document.getElementById("save-msg");
+  try{await apiFetch(API+"/budgets",{method:"POST",headers:hdr(),body:JSON.stringify(data)});msg.textContent="✓ Saved!";msg.style.color="var(--green)";setTimeout(()=>msg.textContent="",2000);loadAll();}
+  catch{msg.textContent="Error — backend running?";msg.style.color="var(--red)";}
+}
+loadAll();
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>

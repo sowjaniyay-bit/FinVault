@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Transactions</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+body{margin:0;}
+.tx-body{flex:1;overflow:hidden;display:grid;grid-template-columns:380px 1fr;height:calc(100vh - 58px);}
+/* LEFT: bank connect */
+.tx-left{border-right:1.5px solid var(--brd);overflow-y:auto;padding:18px 20px;background:var(--bg);display:flex;flex-direction:column;gap:14px;}
+.tx-left::-webkit-scrollbar{width:4px;}.tx-left::-webkit-scrollbar-thumb{background:var(--lav);border-radius:4px;}
+/* RIGHT: list */
+.tx-right{overflow:hidden;display:flex;flex-direction:column;padding:18px 20px;gap:12px;}
+.bank-section{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px;}
+.sec-hd{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.sec-sub{font-size:11px;color:var(--ink4);margin-bottom:12px;}
+.bank-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.tab{padding:6px 12px;border-radius:20px;border:1.5px solid var(--brd2);background:var(--bg);color:var(--ink3);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.tab.on{background:var(--grad);color:#fff;border-color:transparent;}
+.bank-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.bk{border:2px solid var(--brd);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .18s;background:var(--bg);position:relative;}
+.bk:hover{border-color:var(--v-mid);transform:translateY(-2px);box-shadow:var(--s1);}
+.bk.sel{border-color:var(--v);background:var(--v-lt);}
+.bk.sel::after{content:'✓';position:absolute;top:4px;right:6px;font-size:10px;font-weight:700;color:var(--v);}
+.bk-logo{font-size:20px;margin-bottom:4px;}
+.bk-name{font-size:10px;font-weight:700;color:var(--ink2);}
+.bk-type{font-size:9px;color:var(--ink4);}
+.sel-bar{background:var(--bg-lav);border:1.5px solid var(--lav);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.status-msg{font-size:12.5px;padding:9px 13px;border-radius:var(--r);margin-top:8px;display:none;line-height:1.5;}
+.st-ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+.st-err{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);}
+.st-info{background:var(--bg-lav);border:1px solid var(--lav);color:var(--v-deep);}
+.or-row{display:flex;align-items:center;gap:10px;margin:8px 0;}
+.or-row::before,.or-row::after{content:'';flex:1;height:1px;background:var(--brd2);}
+.or-row span{font-size:10px;color:var(--ink4);font-weight:700;white-space:nowrap;}
+.qb-row{display:flex;gap:6px;flex-wrap:wrap;}
+.qb{padding:6px 11px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;border:1.5px solid;background:var(--white);transition:all .18s;}
+.qb:hover{transform:translateY(-1px);}
+.qb:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.qb-sbi{border-color:#1a3c8e;color:#1a3c8e;}.qb-sbi:hover:not(:disabled){background:#1a3c8e;color:#fff;}
+.qb-hdfc{border-color:#004c8f;color:#004c8f;}.qb-hdfc:hover:not(:disabled){background:#004c8f;color:#fff;}
+.qb-icici{border-color:#c97400;color:#c97400;}.qb-icici:hover:not(:disabled){background:#f7941d;color:#fff;}
+.qb-axis{border-color:#97144d;color:#97144d;}.qb-axis:hover:not(:disabled){background:#97144d;color:#fff;}
+.qb-kotak{border-color:#c0392b;color:#c0392b;}.qb-kotak:hover:not(:disabled){background:#ed1b24;color:#fff;}
+.qb-pnb{border-color:#b5000c;color:#b5000c;}.qb-pnb:hover:not(:disabled){background:#e31836;color:#fff;}
+.qb-bob{border-color:#c75100;color:#c75100;}.qb-bob:hover:not(:disabled){background:#f26522;color:#fff;}
+.qb-gen{border-color:var(--v);color:var(--v);}.qb-gen:hover:not(:disabled){background:var(--v);color:#fff;}
+.qb-clr{border-color:var(--red-bd);color:var(--red);background:var(--red-bg);}.qb-clr:hover:not(:disabled){background:var(--red);color:#fff;}
+/* Add form */
+.add-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;}
+.add-row{display:grid;grid-template-columns:1fr 90px 120px auto;gap:7px;align-items:end;background:var(--bg-lav);border:1.5px solid var(--lav);border-radius:var(--r);padding:10px;}
+.add-msg{font-size:12px;margin-top:6px;min-height:16px;}
+/* Right side */
+.filter-row{display:grid;grid-template-columns:1fr 160px;gap:10px;align-items:center;flex-shrink:0;}
+.srch-wrap{position:relative;}.srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink4);font-size:13px;pointer-events:none;}
+.srch-inp{padding-left:34px;}
+.flt-sel{background:var(--white);border:1.5px solid var(--brd2);color:var(--ink);padding:9px 11px;border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;width:100%;}
+.flt-sel:focus{border-color:var(--v);outline:none;box-shadow:var(--sv);}
+.exp-row{display:flex;gap:7px;flex-shrink:0;}
+.exp-btn{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .18s;}
+.exp-csv{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}.exp-csv:hover{background:var(--green);color:#fff;}
+.exp-pdf{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}.exp-pdf:hover{background:var(--red);color:#fff;}
+.txn-scroll{flex:1;overflow-y:auto;border:1.5px solid var(--brd);border-radius:var(--r2);background:var(--white);}
+.txn-scroll::-webkit-scrollbar{width:4px;}.txn-scroll::-webkit-scrollbar-thumb{background:var(--lav);border-radius:4px;}
+.ti{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--brd);}
+.ti:last-child{border:none;}
+.ti-ic{width:34px;height:34px;border-radius:9px;background:var(--bg-lav);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.ti-name{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ti-cat{font-size:10.5px;color:var(--ink4);margin-top:2px;}
+.ti-amt{font-family:'JetBrains Mono',monospace;font-size:12.5px;margin-left:auto;flex-shrink:0;}
+.ti-del{background:none;border:none;cursor:pointer;color:var(--ink5);font-size:11px;padding:4px 6px;border-radius:5px;flex-shrink:0;transition:all .12s;}
+.ti-del:hover{background:var(--red-bg);color:var(--red);}
+.empty-txn{text-align:center;padding:40px 20px;}
+.pag-row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--brd);background:var(--white);flex-shrink:0;border-radius:0 0 var(--r2) var(--r2);}
+.pag-info{font-size:11.5px;color:var(--ink4);}
+.pag-btn{padding:5px 13px;border-radius:8px;border:1.5px solid var(--brd2);background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;color:var(--ink3);transition:all .15s;}
+.pag-btn:hover:not(:disabled){border-color:var(--v-mid);color:var(--v);}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed;}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item on" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Finance</div><div class="pg-title">Transactions</div></div>
+    <div class="topbar-right">
+      <div class="exp-row">
+        <button class="exp-btn exp-csv" onclick="exportCSV()">⬇ CSV</button>
+        <button class="exp-btn exp-pdf" onclick="exportPDF()">⬇ PDF</button>
+      </div>
+    </div>
+  </div>
+  <div class="tx-body">
+    <!-- LEFT: Connect + Add -->
+    <div class="tx-left">
+      <div class="bank-section">
+        <div class="sec-hd">🏦 Connect Indian Bank</div>
+        <div class="sec-sub">Select your bank to load sample transactions</div>
+        <div class="bank-tabs">
+          <button class="tab on" onclick="setTab('pub',this)">🏛 Public</button>
+          <button class="tab" onclick="setTab('priv',this)">🏢 Private</button>
+          <button class="tab" onclick="setTab('upi',this)">📱 UPI</button>
+        </div>
+        <div id="tab-pub" class="bank-grid">
+          <div class="bk" onclick="selBank('sbi','SBI',this)"><div class="bk-logo">🏦</div><div class="bk-name">SBI</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('pnb','PNB',this)"><div class="bk-logo">🏦</div><div class="bk-name">PNB</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('bob','BOB',this)"><div class="bk-logo">🏦</div><div class="bk-name">BOB</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('generic','Canara',this)"><div class="bk-logo">🏦</div><div class="bk-name">Canara</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('generic','Union Bank',this)"><div class="bk-logo">🏦</div><div class="bk-name">Union</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('generic','Indian Bank',this)"><div class="bk-logo">🏦</div><div class="bk-name">Indian</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('generic','Bank of India',this)"><div class="bk-logo">🏦</div><div class="bk-name">BOI</div><div class="bk-type">Public</div></div>
+          <div class="bk" onclick="selBank('generic','Central Bank',this)"><div class="bk-logo">🏦</div><div class="bk-name">Central</div><div class="bk-type">Public</div></div>
+        </div>
+        <div id="tab-priv" class="bank-grid" style="display:none">
+          <div class="bk" onclick="selBank('hdfc','HDFC',this)"><div class="bk-logo">💳</div><div class="bk-name">HDFC</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('icici','ICICI',this)"><div class="bk-logo">💳</div><div class="bk-name">ICICI</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('axis','Axis',this)"><div class="bk-logo">💳</div><div class="bk-name">Axis</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('kotak','Kotak',this)"><div class="bk-logo">💳</div><div class="bk-name">Kotak</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('generic','Yes Bank',this)"><div class="bk-logo">💳</div><div class="bk-name">Yes</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('generic','IndusInd',this)"><div class="bk-logo">💳</div><div class="bk-name">IndusInd</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('generic','Federal',this)"><div class="bk-logo">💳</div><div class="bk-name">Federal</div><div class="bk-type">Private</div></div>
+          <div class="bk" onclick="selBank('generic','IDFC First',this)"><div class="bk-logo">💳</div><div class="bk-name">IDFC</div><div class="bk-type">Private</div></div>
+        </div>
+        <div id="tab-upi" class="bank-grid" style="display:none">
+          <div class="bk" onclick="selBank('generic','GPay',this)"><div class="bk-logo">📱</div><div class="bk-name">GPay</div><div class="bk-type">UPI</div></div>
+          <div class="bk" onclick="selBank('generic','PhonePe',this)"><div class="bk-logo">📱</div><div class="bk-name">PhonePe</div><div class="bk-type">UPI</div></div>
+          <div class="bk" onclick="selBank('generic','Paytm',this)"><div class="bk-logo">📱</div><div class="bk-name">Paytm</div><div class="bk-type">Wallet</div></div>
+          <div class="bk" onclick="selBank('generic','Amazon Pay',this)"><div class="bk-logo">📱</div><div class="bk-name">AmazonPay</div><div class="bk-type">Wallet</div></div>
+          <div class="bk" onclick="selBank('generic','BHIM',this)"><div class="bk-logo">📱</div><div class="bk-name">BHIM</div><div class="bk-type">UPI</div></div>
+          <div class="bk" onclick="selBank('generic','CRED',this)"><div class="bk-logo">📱</div><div class="bk-name">CRED</div><div class="bk-type">UPI</div></div>
+          <div class="bk" onclick="selBank('generic','Slice',this)"><div class="bk-logo">📱</div><div class="bk-name">Slice</div><div class="bk-type">Credit</div></div>
+          <div class="bk" onclick="selBank('generic','MobiKwik',this)"><div class="bk-logo">📱</div><div class="bk-name">MobiKwik</div><div class="bk-type">Wallet</div></div>
+        </div>
+        <!-- Selected info -->
+        <div id="sel-bar" class="sel-bar" style="display:none">
+          <span id="sel-icon" style="font-size:18px">🏦</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--v-deep)" id="sel-name">—</div><div style="font-size:11px;color:var(--ink4)">UPI, salary, EMIs, subscriptions included</div></div>
+          <button class="btn btn-primary" id="load-btn" onclick="loadBank()" style="padding:8px 16px;font-size:12.5px">Load →</button>
+        </div>
+        <div class="status-msg" id="bank-status"></div>
+        <div class="or-row"><span>quick load</span></div>
+        <div class="qb-row">
+          <button class="qb qb-sbi" onclick="quickLoad('sbi',this)">SBI</button>
+          <button class="qb qb-hdfc" onclick="quickLoad('hdfc',this)">HDFC</button>
+          <button class="qb qb-icici" onclick="quickLoad('icici',this)">ICICI</button>
+          <button class="qb qb-axis" onclick="quickLoad('axis',this)">Axis</button>
+          <button class="qb qb-kotak" onclick="quickLoad('kotak',this)">Kotak</button>
+          <button class="qb qb-pnb" onclick="quickLoad('pnb',this)">PNB</button>
+          <button class="qb qb-bob" onclick="quickLoad('bob',this)">BOB</button>
+          <button class="qb qb-gen" onclick="quickLoad('generic',this)">Generic</button>
+        </div>
+        <div style="margin-top:8px"><button class="qb qb-clr" id="qb-clr" onclick="clearData()" style="width:100%">🗑 Clear All Transactions</button></div>
+        <div id="clear-status" style="font-size:11.5px;margin-top:5px;min-height:14px"></div>
+      </div>
+      <!-- Add form -->
+      <div class="add-card">
+        <div class="sec-hd" style="margin-bottom:10px">Add Manual Transaction</div>
+        <div style="background:var(--bg-lav);border:1.5px solid var(--lav);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px;">
+          <div><label class="lbl" style="font-size:8.5px">Merchant / Description</label><input class="inp" id="a-mer" placeholder="e.g. Zomato, Salary Credit" style="background:var(--white)"/></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><label class="lbl" style="font-size:8.5px">Amount ₹</label><input class="inp" id="a-amt" type="number" placeholder="0" style="background:var(--white)"/></div>
+            <div><label class="lbl" style="font-size:8.5px">Date</label><input class="inp" id="a-date" type="date" style="background:var(--white)"/></div>
+          </div>
+          <button class="btn btn-primary" onclick="addTxn()" style="width:100%;padding:10px;font-size:13.5px">+ Add Transaction</button>
+        </div>
+        <div class="add-msg" id="add-msg"></div>
+      </div>
+    </div>
+    <!-- RIGHT: Transactions -->
+    <div class="tx-right">
+      <div class="filter-row">
+        <div class="srch-wrap"><span class="srch-ico">🔍</span><input class="inp srch-inp" id="txn-search" placeholder="Search by merchant…" oninput="applyFilter()"/></div>
+        <select class="flt-sel" id="txn-filter" onchange="applyFilter()">
+          <option value="">All Categories</option>
+          <option>Income</option><option>Food</option><option>Shopping</option><option>Subscription</option>
+          <option>Transport</option><option>Travel</option><option>Utilities</option><option>Health</option>
+          <option>Education</option><option>Entertainment</option><option>Rent</option><option>Other</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--v)" id="txn-count">Transactions</div>
+      </div>
+      <!-- Scrollable list -->
+      <div class="txn-scroll" id="txn-scroll">
+        <div id="txn-list">
+          <div class="empty-txn"><div style="font-size:40px;margin-bottom:12px">🏦</div><div style="font-size:13.5px;color:var(--ink4);line-height:1.8">No transactions yet.<br>Select your bank on the left and click <strong>Load →</strong></div></div>
+        </div>
+      </div>
+      <!-- Pagination -->
+      <div class="pag-row" id="pag-row" style="display:none">
+        <span class="pag-info" id="pag-info">—</span>
+        <div style="display:flex;gap:6px">
+          <button class="pag-btn" id="btn-prev" onclick="prevPage()">← Prev</button>
+          <button class="pag-btn" id="btn-next" onclick="nextPage()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const ICONS={Income:"💵",Subscription:"📺",Food:"🍔",Transport:"🚗",Travel:"✈️",Shopping:"🛍️",Utilities:"⚡",Health:"💊",Education:"📚",Entertainment:"🎬",Rent:"🏠",Other:"📦"};
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+const fmt=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+async function apiFetch(url,opts={}){const r=await fetch(url,opts);if(r.status===401){localStorage.removeItem("authToken");window.location.href="login.html";throw new Error("401");}return r;}
+document.getElementById("a-date").value=new Date().toISOString().slice(0,10);
+fetch(API+"/me",{headers:hdr()}).then(r=>r.json()).then(d=>{if(!d.email)return;document.getElementById("sb-av").textContent=d.email[0].toUpperCase();document.getElementById("sb-email").textContent=d.email;}).catch(()=>{});
+// Tabs
+function setTab(name,btn){["pub","priv","upi"].forEach(t=>document.getElementById("tab-"+t).style.display=t===name?"grid":"none");document.querySelectorAll(".tab").forEach(b=>b.classList.remove("on"));btn.classList.add("on");document.querySelectorAll(".bk").forEach(b=>b.classList.remove("sel"));_selBank=null;document.getElementById("sel-bar").style.display="none";}
+let _selBank=null;
+function selBank(bank,label,card){document.querySelectorAll(".bk").forEach(b=>b.classList.remove("sel"));card.classList.add("sel");_selBank=bank;document.getElementById("sel-bar").style.display="flex";document.getElementById("sel-icon").textContent=bank==="sbi"||bank==="pnb"||bank==="bob"?"🏦":"💳";document.getElementById("sel-name").textContent=label+" Bank";document.getElementById("bank-status").style.display="none";const btn=document.getElementById("load-btn");btn.disabled=false;btn.textContent="Load →";btn.style.background="";}
+function showSt(msg,type){const el=document.getElementById("bank-status");el.textContent=msg;el.className="status-msg st-"+type;el.style.display="block";}
+async function loadBank(){if(!_selBank){showSt("Select a bank first","err");return;}const btn=document.getElementById("load-btn");btn.disabled=true;btn.textContent="Loading…";showSt("Importing transactions…","info");try{const resp=await fetch(API+"/import_sample_data",{method:"POST",headers:hdr(),body:JSON.stringify({bank:_selBank})});if(resp.status===401){localStorage.removeItem("authToken");window.location.href="login.html";return;}const d=await resp.json();if(d.success){showSt("✅ "+d.message,"ok");btn.textContent="✓ Done!";btn.style.background="#059669";loadTxns();}else{showSt("⚠ "+(d.error||"Failed"),"err");btn.disabled=false;btn.textContent="Load →";btn.style.background="";}}catch(e){showSt("⚠ Backend not running. Run: cd backend && python app.py","err");btn.disabled=false;btn.textContent="Load →";btn.style.background="";}}
+async function quickLoad(bank,btn){const orig=btn.textContent;btn.disabled=true;btn.textContent="…";showSt("Loading "+bank.toUpperCase()+"…","info");try{const resp=await fetch(API+"/import_sample_data",{method:"POST",headers:hdr(),body:JSON.stringify({bank})});if(resp.status===401){localStorage.removeItem("authToken");window.location.href="login.html";return;}const d=await resp.json();if(d.success){showSt("✅ "+d.message,"ok");btn.textContent="✓";setTimeout(()=>{btn.disabled=false;btn.textContent=orig;},3000);loadTxns();}else{showSt("⚠ "+(d.error||"Failed"),"err");btn.disabled=false;btn.textContent=orig;}}catch(e){showSt("⚠ Backend not running. Run: cd backend && python app.py","err");btn.disabled=false;btn.textContent=orig;}}
+async function clearData(){const btn=document.getElementById("qb-clr"),st=document.getElementById("clear-status");if(!confirm("Delete ALL transactions?"))return;btn.disabled=true;btn.textContent="Clearing…";try{const d=await apiFetch(API+"/clear_data",{method:"POST",headers:hdr(),body:JSON.stringify({clear_goals:false})}).then(r=>r.json());if(d.success){st.textContent="✅ Cleared!";st.style.color="var(--green)";btn.textContent="✓";setTimeout(()=>{btn.disabled=false;btn.textContent="🗑 Clear All Transactions";st.textContent="";},3000);loadTxns();}else{st.textContent="❌ "+(d.error||"Failed");st.style.color="var(--red)";btn.disabled=false;btn.textContent="🗑 Clear All Transactions";}}catch(e){st.textContent="❌ Server error";st.style.color="var(--red)";btn.disabled=false;btn.textContent="🗑 Clear All Transactions";}}
+// Transactions
+let _all=[], _filtered=[], _page=0;
+const PG=15;
+async function loadTxns(){try{const data=await apiFetch(API+"/get_transactions",{headers:hdr()}).then(r=>r.json());_all=data;applyFilter();}catch(e){}}
+function applyFilter(){_page=0;const s=(document.getElementById("txn-search").value||"").toLowerCase().trim();const f=document.getElementById("txn-filter").value;_filtered=_all.filter(t=>(!s||t.merchant.toLowerCase().includes(s))&&(!f||t.category===f));renderPage();}
+function prevPage(){if(_page>0){_page--;renderPage();}}
+function nextPage(){if((_page+1)*PG<_filtered.length){_page++;renderPage();}}
+function renderPage(){
+  const el=document.getElementById("txn-list");
+  document.getElementById("txn-count").textContent=_all.length?" "+_all.length+" transactions":"Transactions";
+  if(!_filtered.length){
+    document.getElementById("pag-row").style.display="none";
+    el.innerHTML=_all.length===0
+      ?'<div class="empty-txn"><div style="font-size:40px;margin-bottom:12px">🏦</div><div style="font-size:13.5px;color:var(--ink4);line-height:1.8">No transactions yet.<br>Select your bank on the left and click <strong>Load →</strong></div></div>'
+      :'<div class="empty-txn"><div style="font-size:32px;margin-bottom:10px">🔍</div><div style="font-size:13px;color:var(--ink4)">No results found.</div></div>';
+    return;
+  }
+  const sorted=_filtered.slice().reverse();
+  const paged=sorted.slice(_page*PG,(_page+1)*PG);
+  const total=_filtered.length;
+  document.getElementById("pag-row").style.display="flex";
+  document.getElementById("pag-info").textContent="Showing "+(_page*PG+1)+"–"+Math.min((_page+1)*PG,total)+" of "+total;
+  document.getElementById("btn-prev").disabled=_page===0;
+  document.getElementById("btn-next").disabled=(_page+1)*PG>=total;
+  el.innerHTML=paged.map((t,i)=>{const inc=t.category==="Income";return'<div class="ti" style="opacity:0;animation:fadeIn .25s '+(i*.02)+'s ease forwards"><div class="ti-ic">'+(ICONS[t.category]||"📦")+'</div><div style="flex:1;min-width:0"><div class="ti-name">'+t.merchant+'</div><div class="ti-cat">'+t.category+' · '+t.date+'</div></div><div class="ti-amt" style="color:'+(inc?"var(--green)":"var(--red)")+'"><span style="font-size:10px">'+(inc?"+":"-")+'</span>'+fmt(Math.abs(t.amount))+'</div><button class="ti-del" onclick="delTxn('+t.id+')">✕</button></div>';}).join("");
+}
+async function addTxn(){const mer=document.getElementById("a-mer").value.trim(),amt=document.getElementById("a-amt").value,date=document.getElementById("a-date").value,msg=document.getElementById("add-msg");if(!mer||!amt){msg.textContent="Fill in merchant and amount.";msg.style.color="var(--red)";return;}try{const d=await fetch(API+"/add_transaction",{method:"POST",headers:hdr(),body:JSON.stringify({merchant:mer,amount:parseFloat(amt),date})}).then(r=>r.json());msg.textContent='✓ "'+mer+'" → '+d.category;msg.style.color="var(--green)";document.getElementById("a-mer").value="";document.getElementById("a-amt").value="";setTimeout(()=>msg.textContent="",3000);loadTxns();}catch(e){msg.textContent="Error — backend running?";msg.style.color="var(--red)";}}
+async function delTxn(id){await fetch(API+"/delete_transaction/"+id,{method:"DELETE",headers:hdr()});loadTxns();}
+async function exportCSV(){if(!_all.length){alert("No transactions.");return;}try{const r=await apiFetch(API+"/export/csv",{headers:hdr()});const blob=await r.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="finvault_transactions.csv";a.click();URL.revokeObjectURL(url);}catch(e){alert("Export failed.");}}
+function exportPDF(){if(!_all.length){alert("No transactions.");return;}const now=new Date().toLocaleDateString("en-IN",{dateStyle:"long"});const tI=_all.filter(t=>t.category==="Income").reduce((a,t)=>a+t.amount,0);const tE=_all.filter(t=>t.category!=="Income").reduce((a,t)=>a+Math.abs(t.amount),0);const net=tI-tE;const catMap={};for(const t of _all)if(t.category!=="Income")catMap[t.category]=(catMap[t.category]||0)+Math.abs(t.amount);const catR=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).map(([c,v])=>"<tr><td>"+(ICONS[c]||"📦")+" "+c+"<\/td><td style='text-align:right'>₹"+v.toLocaleString("en-IN")+"<\/td><\/tr>").join("");const txR=_all.slice().reverse().map(t=>{const i=t.category==="Income";return"<tr><td>"+t.date+"<\/td><td>"+t.merchant+"<\/td><td>"+t.category+"<\/td><td style='text-align:right;color:"+(i?"#059669":"#e11d48")+"'>"+(i?"+":"-")+"₹"+Math.abs(t.amount).toLocaleString("en-IN")+"<\/td><\/tr>";}).join("");const css="body{font-family:Arial;color:#1a1028;padding:28px;max-width:860px;margin:0 auto}h1{font-size:24px;color:#7c5cbf}table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;padding:6px 8px;background:#f5f0ff;color:#5b3fa0;font-size:10px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #ede8f5}h2{font-size:14px;color:#7c5cbf;border-bottom:2px solid #ede8f5;padding-bottom:4px;margin:16px 0 8px}";const html="<!DOCTYPE html><html><head><meta charset='UTF-8'><title>FinVault Report<\/title><style>"+css+"<\/style><\/head><body><h1>💜 FinVault Report<\/h1><p style='color:#7a6d92;margin:4px 0 20px'>"+now+" · "+_all.length+" transactions<\/p><div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px'><div style='background:#f5f0ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:12px'><div style='font-size:9px;font-weight:700;text-transform:uppercase;color:#b0a5c4;margin-bottom:4px'>Income<\/div><div style='font-size:18px;font-weight:700;color:#059669'>₹"+tI.toLocaleString("en-IN")+"<\/div><\/div><div style='background:#f5f0ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:12px'><div style='font-size:9px;font-weight:700;text-transform:uppercase;color:#b0a5c4;margin-bottom:4px'>Expenses<\/div><div style='font-size:18px;font-weight:700;color:#e11d48'>₹"+tE.toLocaleString("en-IN")+"<\/div><\/div><div style='background:#f5f0ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:12px'><div style='font-size:9px;font-weight:700;text-transform:uppercase;color:#b0a5c4;margin-bottom:4px'>Net<\/div><div style='font-size:18px;font-weight:700;color:"+(net>=0?"#059669":"#e11d48")+"'>₹"+Math.abs(net).toLocaleString("en-IN")+"<\/div><\/div><\/div><h2>By Category<\/h2><table><thead><tr><th>Category<\/th><th style='text-align:right'>Amount<\/th><\/tr><\/thead><tbody>"+catR+"<\/tbody><\/table><h2>All Transactions<\/h2><table><thead><tr><th>Date<\/th><th>Merchant<\/th><th>Category<\/th><th style='text-align:right'>Amount<\/th><\/tr><\/thead><tbody>"+txR+"<\/tbody><\/table><\/body><\/html>";const w=window.open("","_blank");w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),400);}
+loadTxns();
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>

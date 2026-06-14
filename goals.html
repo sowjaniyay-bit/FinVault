@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>FinVault — Goals</title>
+  <link rel="stylesheet" href="shared.css"/>
+<style>
+body{margin:0;}
+
+/* ── Savings summary bar ── */
+.savings-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.sv-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:13px 16px;box-shadow:var(--s1);position:relative;overflow:hidden;}
+.sv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sv-card.total::before{background:linear-gradient(90deg,var(--v),#a78bde);}
+.sv-card.saved::before{background:linear-gradient(90deg,#059669,#34d399);}
+.sv-card.remaining::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.sv-card.txn::before{background:linear-gradient(90deg,#0369a1,#38bdf8);}
+.sv-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+.sv-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);line-height:1.1;}
+.sv-sub{font-size:10.5px;color:var(--ink4);margin-top:3px;}
+.sv-card.saved .sv-val{color:var(--green);}
+.sv-card.remaining .sv-val{color:#d97706;}
+
+/* ── Create goal inline form ── */
+.create-strip{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 20px;margin-bottom:20px;box-shadow:var(--s1);}
+.cs-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--v);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.cs-label::after{content:'';flex:1;height:1px;background:var(--brd);}
+.cs-row{display:grid;grid-template-columns:1fr 160px 160px auto;gap:10px;align-items:end;}
+.cs-field label{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);display:block;margin-bottom:4px;}
+.cs-inp{background:var(--bg);border:1.5px solid var(--brd2);color:var(--ink);padding:9px 12px;border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:13.5px;width:100%;transition:all .2s;box-sizing:border-box;}
+.cs-inp:focus{border-color:var(--v);box-shadow:var(--sv);outline:none;background:var(--white);}
+.cs-inp::placeholder{color:var(--ink5);}
+.btn-create-goal{background:var(--grad);color:#fff;border:none;border-radius:var(--r);padding:9px 18px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-create-goal:hover{transform:translateY(-1px);box-shadow:0 4px 14px var(--v-glow);}
+#g-msg{font-size:12px;margin-top:8px;min-height:14px;}
+
+/* ── Section header ── */
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--ink);}
+.goals-count{background:var(--v-lt);color:var(--v-deep);border:1.5px solid var(--lav);border-radius:20px;padding:2px 12px;font-size:11.5px;font-weight:700;}
+.txn-link{font-size:11.5px;color:var(--v);font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid var(--lav);border-radius:var(--r);background:var(--v-lt);transition:all .15s;}
+.txn-link:hover{background:var(--lav);}
+
+/* ── Goals grid ── */
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+
+/* ── Goal card ── */
+.goal-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:0;opacity:0;animation:cardIn .45s ease forwards;transition:all .22s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.goal-card:hover{box-shadow:var(--s2);transform:translateY(-2px);}
+.goal-card.done-card{border-color:var(--green-bd);}
+
+/* coloured top strip */
+.gc-strip{height:4px;width:100%;background:var(--grad);flex-shrink:0;}
+.done-card .gc-strip{background:linear-gradient(90deg,#059669,#34d399);}
+
+.gc-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;}
+
+.gc-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.gc-name{font-family:'DM Serif Display',serif;font-size:17px;color:var(--ink);line-height:1.25;word-break:break-word;padding-right:8px;}
+.gc-del{background:none;border:none;color:var(--ink5);cursor:pointer;font-size:11px;padding:4px 6px;border-radius:6px;transition:all .18s;flex-shrink:0;}
+.gc-del:hover{background:var(--red-bg);color:var(--red);}
+
+/* ring + amounts */
+.gc-ring-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.gc-ring-wrap{position:relative;width:70px;height:70px;flex-shrink:0;}
+.gc-ring-svg{width:70px;height:70px;transform:rotate(-90deg);}
+.gc-ring-bg{fill:none;stroke:var(--brd2);stroke-width:6;}
+.gc-ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+.gc-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--ink);}
+.gc-amounts{min-width:0;}
+.gc-saved{font-family:'DM Serif Display',serif;font-size:21px;color:var(--v);display:block;line-height:1;}
+.gc-target{font-size:11px;color:var(--ink4);font-family:'JetBrains Mono',monospace;display:block;margin-top:2px;}
+.gc-remaining{font-size:11px;color:var(--ink3);margin-top:4px;}
+.gc-remaining span{font-weight:700;color:var(--ink2);}
+
+/* progress bar */
+.prog-track{height:6px;background:var(--brd2);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;border-radius:4px;background:var(--grad);transition:width 1.1s ease;}
+.prog-fill.done{background:linear-gradient(90deg,#059669,#34d399);}
+
+/* meta row */
+.gc-meta{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--ink4);margin-bottom:10px;flex-wrap:wrap;gap:4px;}
+.gc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;}
+
+/* deadline info */
+.gc-deadline{font-size:10.5px;color:var(--ink4);display:flex;align-items:center;gap:4px;}
+.gc-monthly{background:var(--bg-lav);border:1px solid var(--lav);border-radius:var(--r);padding:6px 10px;font-size:11px;color:var(--v-deep);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+/* deposit row — always at bottom */
+.dep-row{border-top:1.5px solid var(--brd);padding:12px 18px;background:var(--bg);display:flex;gap:8px;flex-shrink:0;}
+.dep-inp{flex:1;background:var(--white);border:1.5px solid var(--brd2);color:var(--ink);padding:8px 11px;font-size:13px;border-radius:var(--r);font-family:'Outfit',sans-serif;transition:all .2s;min-width:0;}
+.dep-inp:focus{border-color:var(--v);outline:none;box-shadow:var(--sv);}
+.dep-inp::placeholder{color:var(--ink5);}
+.dep-btn{background:var(--v-lt);border:1.5px solid var(--lav);color:var(--v-deep);border-radius:var(--r);padding:8px 14px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.dep-btn:hover{background:var(--grad);color:#fff;border-color:transparent;}
+
+/* empty */
+.empty-state{grid-column:1/-1;text-align:center;padding:56px 20px;}
+.empty-icon{font-size:46px;margin-bottom:12px;display:block;animation:float 3s ease-in-out infinite;}
+.empty-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink3);margin-bottom:7px;}
+.empty-sub{font-size:13.5px;color:var(--ink4);line-height:1.7;}
+
+/* savings info note */
+.savings-note{background:linear-gradient(135deg,#f0fdf8,#dcfce7);border:1.5px solid var(--green-bd);border-radius:var(--r2);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2);line-height:1.6;}
+.savings-note strong{color:var(--green);}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;z-index:2000;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* skeleton */
+.skeleton{background:linear-gradient(90deg,var(--brd) 25%,var(--brd2) 50%,var(--brd) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r2);}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+</style>
+</head>
+<body class="app-shell">
+
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item on" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+
+<div class="app-main">
+  <div class="app-topbar">
+    <div>
+      <div class="pg-label">Savings</div>
+      <div class="pg-title">◇ My Goals</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><span class="live-dot"></span>Tracking</div>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Savings summary bar -->
+    <div class="savings-bar" id="savings-bar">
+      <div class="sv-card total skeleton" style="height:66px"></div>
+      <div class="sv-card saved skeleton" style="height:66px;animation-delay:.08s"></div>
+      <div class="sv-card remaining skeleton" style="height:66px;animation-delay:.16s"></div>
+      <div class="sv-card txn skeleton" style="height:66px;animation-delay:.24s"></div>
+    </div>
+
+    <!-- Where savings go — info note -->
+    <div class="savings-note">
+      <span style="font-size:20px">💡</span>
+      <div>
+        Every deposit you make here is <strong>automatically deducted from your balance</strong> and logged as a <strong>Savings</strong> transaction —
+        visible in your <a href="transactions.html" style="color:var(--green);font-weight:700;text-decoration:none">Transactions page</a>
+        and counted in your Dashboard balance.
+      </div>
+    </div>
+
+    <!-- Create new goal -->
+    <div class="create-strip">
+      <div class="cs-label">✦ Create New Goal</div>
+      <div class="cs-row">
+        <div class="cs-field">
+          <label>Goal Name</label>
+          <input class="cs-inp" id="g-name" placeholder="e.g. Emergency Fund, Trip to Bali, New Laptop"/>
+        </div>
+        <div class="cs-field">
+          <label>Target Amount (₹)</label>
+          <input class="cs-inp" id="g-target" type="number" placeholder="50000"/>
+        </div>
+        <div class="cs-field">
+          <label>Deadline (optional)</label>
+          <input class="cs-inp" id="g-dead" type="date"/>
+        </div>
+        <button class="btn-create-goal" onclick="createGoal()">+ Create Goal</button>
+      </div>
+      <div id="g-msg"></div>
+    </div>
+
+    <!-- Goals list -->
+    <div class="sec-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="sec-title">Active Goals</div>
+        <div class="goals-count" id="gs-count" style="display:none"></div>
+      </div>
+      <a href="transactions.html" class="txn-link">💳 View Savings in Transactions →</a>
+    </div>
+
+    <div class="goals-grid" id="goals-grid">
+      <div class="skeleton" style="height:240px"></div>
+      <div class="skeleton" style="height:240px;animation-delay:.08s"></div>
+      <div class="skeleton" style="height:240px;animation-delay:.16s"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+const tok = () => localStorage.getItem("authToken");
+const hdr = () => ({ "Content-Type": "application/json", "Authorization": "Bearer " + tok() });
+const fmt = n => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
+(function(){ if(!tok()||tok()==="null"||tok().trim()==="") window.location.href="login.html"; })();
+function logout(){ localStorage.clear(); window.location.replace("login.html"); }
+
+async function apiFetch(url, opts={}) {
+  const r = await fetch(url, opts);
+  if(r.status===401){ localStorage.removeItem("authToken"); window.location.replace("login.html"); throw new Error("Unauthorized"); }
+  return r;
+}
+
+// Load user email for sidebar
+apiFetch(`${API}/me`, {headers:hdr()}).then(r=>r.json()).then(d=>{
+  if(!d.email) return;
+  document.getElementById("sb-av").textContent = d.email[0].toUpperCase();
+  document.getElementById("sb-email").textContent = d.email;
+}).catch(()=>{});
+
+async function createGoal() {
+  const name = document.getElementById("g-name").value.trim();
+  const target = document.getElementById("g-target").value;
+  const deadline = document.getElementById("g-dead").value;
+  const msg = document.getElementById("g-msg");
+  if(!name||!target){ msg.textContent="Enter a goal name and target amount."; msg.style.color="var(--red)"; return; }
+  try {
+    const d = await apiFetch(`${API}/goals`, {method:"POST", headers:hdr(), body:JSON.stringify({name, target_amount:parseFloat(target), deadline})}).then(r=>r.json());
+    if(d.success){
+      msg.textContent="✓ Goal created!"; msg.style.color="var(--green)";
+      document.getElementById("g-name").value="";
+      document.getElementById("g-target").value="";
+      document.getElementById("g-dead").value="";
+      setTimeout(()=>msg.textContent="", 3000);
+      loadGoals();
+    } else { msg.textContent=d.error||"Error"; msg.style.color="var(--red)"; }
+  } catch { msg.textContent="Cannot reach server."; msg.style.color="var(--red)"; }
+}
+
+async function loadGoals() {
+  const el = document.getElementById("goals-grid");
+  try {
+    const data = await apiFetch(`${API}/goals`, {headers:hdr()}).then(r=>r.json());
+
+    // Update count badge
+    const cnt = document.getElementById("gs-count");
+    cnt.textContent = data.length + " goal" + (data.length!==1?"s":"");
+    cnt.style.display = data.length ? "inline-block" : "none";
+
+    // Update savings summary bar
+    renderSavingsBar(data);
+
+    if(!data.length) {
+      el.innerHTML = `<div class="empty-state">
+        <span class="empty-icon">🎯</span>
+        <div class="empty-title">No goals yet</div>
+        <div class="empty-sub">Create your first savings goal above.<br>Every deposit will show in your Transactions page.</div>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = data.map((g, i) => {
+      const pct = Math.min(100, (g.saved_amount / g.target_amount) * 100);
+      const done = pct >= 100;
+      const circ = 100.5;
+      const offset = circ - (pct/100) * circ;
+      const remaining = g.target_amount - g.saved_amount;
+      const gradId = "rg" + g.id;
+
+      let monthlyHint = "";
+      if(g.monthly_needed && g.monthly_needed > 0 && !done) {
+        monthlyHint = `<div class="gc-monthly">📅 Save ${fmt(g.monthly_needed)}/month to hit your deadline</div>`;
+      }
+
+      return `<div class="goal-card${done?" done-card":""}" style="animation-delay:${i*.07}s">
+        <div class="gc-strip"></div>
+        <div class="gc-body">
+          <div class="gc-head">
+            <div class="gc-name">${g.name}</div>
+            <button class="gc-del" onclick="delGoal(${g.id})" title="Delete goal">✕</button>
+          </div>
+
+          <div class="gc-ring-row">
+            <div class="gc-ring-wrap">
+              <svg class="gc-ring-svg" viewBox="0 0 40 40">
+                <defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="${done?"#059669":"#7c5cbf"}"/>
+                  <stop offset="100%" stop-color="${done?"#34d399":"#a78bde"}"/>
+                </linearGradient></defs>
+                <circle class="gc-ring-bg" cx="20" cy="20" r="16"/>
+                <circle class="gc-ring-fill" cx="20" cy="20" r="16"
+                  stroke="url(#${gradId})" stroke-dasharray="${circ}"
+                  stroke-dashoffset="${circ}" data-offset="${offset}"/>
+              </svg>
+              <div class="gc-ring-num">${Math.round(pct)}%</div>
+            </div>
+            <div class="gc-amounts">
+              <span class="gc-saved">${fmt(g.saved_amount)}</span>
+              <span class="gc-target">of ${fmt(g.target_amount)}</span>
+              ${!done ? `<div class="gc-remaining">Still need <span>${fmt(remaining)}</span></div>` : ""}
+            </div>
+          </div>
+
+          <div class="prog-track"><div class="prog-fill${done?" done":""}" style="width:0" data-w="${pct}%"></div></div>
+
+          <div class="gc-meta">
+            <span>${pct.toFixed(1)}% complete</span>
+            ${g.deadline ? `<span class="gc-deadline">📅 ${g.deadline}</span>` : ""}
+          </div>
+
+          ${done ? '<div class="gc-badge">🎉 Goal achieved!</div>' : ""}
+          ${monthlyHint}
+        </div>
+
+        <div class="dep-row">
+          <input class="dep-inp" id="dep-${g.id}" type="number" placeholder="Deposit ₹ amount"/>
+          <button class="dep-btn" onclick="deposit(${g.id})">+ Deposit</button>
+        </div>
+      </div>`;
+    }).join("");
+
+    setTimeout(() => {
+      document.querySelectorAll(".gc-ring-fill").forEach(el => el.style.strokeDashoffset = el.dataset.offset);
+      document.querySelectorAll(".prog-fill").forEach(el => el.style.width = el.dataset.w);
+    }, 200);
+
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--ink4);font-size:13px;padding:40px;text-align:center">⚠️ Could not load — is the server running?</div>';
+  }
+}
+
+function renderSavingsBar(goals) {
+  const totalTarget = goals.reduce((s,g) => s + g.target_amount, 0);
+  const totalSaved = goals.reduce((s,g) => s + g.saved_amount, 0);
+  const totalRemaining = totalTarget - totalSaved;
+  const goalsComplete = goals.filter(g => g.saved_amount >= g.target_amount).length;
+
+  document.getElementById("savings-bar").innerHTML = `
+    <div class="sv-card total">
+      <div class="sv-lbl">Total Target</div>
+      <div class="sv-val">${fmt(totalTarget)}</div>
+      <div class="sv-sub">across ${goals.length} goal${goals.length!==1?"s":""}</div>
+    </div>
+    <div class="sv-card saved">
+      <div class="sv-lbl">💚 Total Saved</div>
+      <div class="sv-val">${fmt(totalSaved)}</div>
+      <div class="sv-sub">${goalsComplete} goal${goalsComplete!==1?"s":""} completed</div>
+    </div>
+    <div class="sv-card remaining">
+      <div class="sv-lbl">Still Needed</div>
+      <div class="sv-val">${fmt(Math.max(0, totalRemaining))}</div>
+      <div class="sv-sub">to reach all targets</div>
+    </div>
+    <div class="sv-card txn">
+      <div class="sv-lbl">Where It Goes</div>
+      <div class="sv-val" style="font-size:13px;padding-top:3px">Transactions page</div>
+      <div class="sv-sub"><a href="transactions.html" style="color:#0369a1;text-decoration:none;font-weight:600">View all savings →</a></div>
+    </div>`;
+}
+
+async function deposit(id) {
+  const inp = document.getElementById("dep-" + id);
+  const amt = parseFloat(inp.value);
+  if(!amt || amt <= 0){ showToast("⚠️ Enter a valid amount"); return; }
+  try {
+    const d = await apiFetch(`${API}/goals/${id}/deposit`, {
+      method:"POST", headers:hdr(), body:JSON.stringify({amount:amt})
+    }).then(r=>r.json());
+    inp.value = "";
+    if(d.achieved){
+      showToast("🎉 Goal achieved! Deducted from balance & logged in Transactions.");
+    } else {
+      showToast(`✅ ${fmt(amt)} deposited — deducted from balance, visible in Transactions`);
+    }
+    loadGoals();
+  } catch { showToast("⚠️ Could not deposit — check backend"); }
+}
+
+async function delGoal(id) {
+  if(!confirm("Delete this goal? This won't reverse past deposits.")) return;
+  await apiFetch(`${API}/goals/${id}`, {method:"DELETE", headers:hdr()});
+  loadGoals();
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 4000);
+}
+
+loadGoals();
+</script>
+<script>if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }</script>
+</body></html>

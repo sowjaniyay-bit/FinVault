@@ -1,0 +1,399 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — AI Nudges</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+.explainer{background:linear-gradient(135deg,#f5f0ff 0%,#ede8ff 100%);border:1.5px solid var(--lav-bd);border-radius:var(--r2);padding:14px 18px;margin-bottom:16px;display:flex;gap:14px;align-items:flex-start;}
+.explainer-icon{font-size:28px;flex-shrink:0;margin-top:2px;}
+.explainer-title{font-size:13px;font-weight:700;color:var(--v-deep);margin-bottom:4px;}
+.explainer-body{font-size:12px;color:var(--ink2);line-height:1.65;}
+.explainer-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.expl-chip{font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--white);color:var(--v);border:1.5px solid var(--lav);}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:12px 14px;box-shadow:var(--s1);}
+.stat-label{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+.stat-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.stat-sub{font-size:10.5px;color:var(--ink4);margin-top:2px;}
+.stat-card.danger .stat-val{color:var(--red);}
+.stat-card.success .stat-val{color:var(--green);}
+.stat-card.warning .stat-val{color:#d97706;}
+.stat-card.accent .stat-val{color:var(--v);}
+.salary-bar{background:linear-gradient(135deg,#f0fdf8,#dcfce7);border:1.5px solid var(--green-bd);border-radius:var(--r2);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;box-shadow:var(--s1);}
+.salary-icon{font-size:30px;flex-shrink:0;}
+.salary-body{flex:1;}
+.salary-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.salary-sub{font-size:12px;color:var(--ink3);}
+.salary-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.section-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--v);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.section-lbl::after{content:'';flex:1;height:1px;background:var(--brd);}
+.ai-badge{background:linear-gradient(135deg,var(--v),#a78bde);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+.nudge-section{margin-bottom:24px;}
+.nudge-section-hd{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.nudge-section-hd::after{content:'';flex:1;height:1.5px;background:var(--brd);}
+.nudge-count{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.danger-hd{color:var(--red);}
+.danger-hd .nudge-count{background:var(--red-bg);color:var(--red);}
+.success-hd{color:var(--green);}
+.success-hd .nudge-count{background:var(--green-bg);color:var(--green);}
+.nudge-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.nudge-empty{grid-column:1/-1;text-align:center;padding:20px;font-size:13px;color:var(--ink4);background:var(--bg);border-radius:12px;border:1.5px dashed var(--brd2);}
+.nudge-card{background:var(--white);border-radius:14px;border:1.5px solid var(--brd);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);animation:slideUp .3s ease forwards;opacity:0;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;}
+.nudge-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);}
+.nudge-card.danger,.nudge-card.warning{border-color:#fca5a5;}
+.nudge-card.success{border-color:#86efac;}
+.n-topbar{height:3px;width:100%;}
+.danger .n-topbar,.warning .n-topbar{background:linear-gradient(90deg,#ef4444,#f87171);}
+.success .n-topbar{background:linear-gradient(90deg,#22c55e,#4ade80);}
+.info .n-topbar{background:linear-gradient(90deg,var(--v),#a78bde);}
+.n-content{padding:14px;flex:1;}
+.n-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.n-icon{font-size:26px;flex-shrink:0;line-height:1;}
+.n-meta{flex:1;min-width:0;}
+.n-title{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:2px;}
+.n-ai-tag{display:inline-block;font-size:9px;background:linear-gradient(135deg,var(--v),#a78bde);color:#fff;padding:1px 5px;border-radius:5px;font-weight:600;margin-left:4px;vertical-align:middle;}
+.n-msg{font-size:12px;color:var(--ink3);line-height:1.6;}
+.n-footer{padding:10px 14px;border-top:1px solid var(--brd);background:var(--bg);display:flex;flex-direction:column;gap:7px;}
+.n-tip{font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;display:block;}
+.danger .n-tip,.warning .n-tip{background:#fef2f2;color:#dc2626;}
+.success .n-tip{background:#f0fdf4;color:#16a34a;}
+.info .n-tip{background:var(--bg-lav);color:var(--v-deep);}
+.n-actions{display:flex;gap:5px;flex-wrap:wrap;}
+.btn-a{font-size:11px;font-weight:600;padding:5px 11px;border-radius:8px;cursor:pointer;border:1.5px solid var(--brd2);background:var(--white);color:var(--ink3);font-family:'Outfit',sans-serif;transition:all .15s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.btn-a:hover{border-color:var(--v);color:var(--v);background:var(--bg-lav);}
+.btn-a.go{background:var(--grad);color:#fff;border-color:transparent;}
+.btn-a.go:hover{opacity:.88;}
+.btn-a.save{background:#f0fdf4;color:#16a34a;border-color:#86efac;}
+.btn-a.save:hover{background:#22c55e;color:#fff;}
+.btn-a.dim{color:var(--ink5);}
+.btn-a.dim:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2;}
+.snooze-wrap{position:relative;}
+.snooze-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--white);border:1.5px solid var(--brd);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:100;min-width:140px;overflow:hidden;}
+.snooze-menu.open{display:block;}
+.snooze-opt{padding:8px 13px;font-size:12px;color:var(--ink2);cursor:pointer;transition:background .15s;}
+.snooze-opt:hover{background:var(--bg-lav);color:var(--v);}
+.save-panel{display:none;background:var(--bg-lav);border-top:1px solid var(--lav);padding:10px 14px;}
+.save-panel.open{display:block;}
+.save-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.save-slider{flex:1;min-width:100px;accent-color:var(--v);}
+.save-amount-disp{font-family:'DM Serif Display',serif;font-size:16px;color:var(--v);min-width:65px;}
+.btn-confirm-save{background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;}
+.btn-cancel-save{background:none;border:none;color:var(--ink4);cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;padding:6px;}
+.save-goal-select{padding:5px 8px;border:1.5px solid var(--lav-bd);border-radius:8px;font-family:'Outfit',sans-serif;font-size:11.5px;color:var(--ink);background:var(--white);}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1.5px solid var(--brd2);background:var(--white);color:var(--ink3);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.tb-btn:hover{border-color:var(--v-mid);color:var(--v);background:var(--bg-lav);}
+.tb-btn svg{width:14px;height:14px;}
+.tb-btn.primary{background:var(--grad);color:#fff;border-color:transparent;}
+.tb-btn.primary:hover{opacity:.88;transform:translateY(-1px);}
+.skeleton{background:linear-gradient(90deg,var(--brd) 25%,var(--brd2) 50%,var(--brd) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r2);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,5,20,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--r3);padding:26px;width:340px;box-shadow:0 20px 60px rgba(90,50,160,.2);}
+.modal-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--ink);margin-bottom:4px;}
+.modal-sub{font-size:12.5px;color:var(--ink3);margin-bottom:18px;}
+.modal-amount{font-size:32px;font-family:'DM Serif Display',serif;color:var(--v);text-align:center;margin-bottom:3px;}
+.modal-income{font-size:11.5px;color:var(--ink4);text-align:center;margin-bottom:18px;}
+.amount-slider{width:100%;accent-color:var(--v);margin-bottom:16px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns .btn-primary{flex:1;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;z-index:2000;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body class="app-shell">
+
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item on" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+
+<div class="app-main">
+  <div class="app-topbar">
+    <div>
+      <div class="pg-label">Smart Alerts</div>
+      <div class="pg-title">🔔 AI Nudges</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="resetNudges()">↺ Reset</button>
+      <button class="tb-btn primary" onclick="loadAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4v5h5M20 20v-5h-5"/><path d="M4 9a8 8 0 0115.54-2.46M20 15a8 8 0 01-15.54 2.46"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card skeleton" style="height:68px"></div>
+      <div class="stat-card skeleton" style="height:68px;animation-delay:.1s"></div>
+      <div class="stat-card skeleton" style="height:68px;animation-delay:.2s"></div>
+      <div class="stat-card skeleton" style="height:68px;animation-delay:.3s"></div>
+    </div>
+
+    <div id="salary-banner" style="display:none">
+      <div class="salary-bar">
+        <div class="salary-icon">🎉</div>
+        <div class="salary-body">
+          <div class="salary-title">Salary credited — <span id="salary-amt">₹0</span></div>
+          <div class="salary-sub">Move some to savings — it'll be logged as a <strong>Savings</strong> transaction in your Transactions page.</div>
+        </div>
+        <div class="salary-actions">
+          <button class="btn-primary" onclick="openSavingsModal()">💰 Move to Savings</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('salary-banner').style.display='none'">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-lbl">Smart Alerts <span class="ai-badge">✨ Gemini AI</span></div>
+    <div style="font-size:11.5px;color:var(--ink4);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+      <span>💡</span> Hitting <strong style="color:var(--v)">💰 Save</strong> on any alert logs the amount as a <em>Savings</em> transaction — visible in your <a href="transactions.html" style="color:var(--v);text-decoration:none;font-weight:600">Transactions</a> page.
+    </div>
+
+    <div id="nudge-grid">
+      <div class="nudge-section">
+        <div class="nudge-section-hd danger-hd">🚨 Alerts &amp; Warnings</div>
+        <div class="nudge-cols">
+          <div class="skeleton" style="height:120px"></div>
+          <div class="skeleton" style="height:100px;animation-delay:.1s"></div>
+          <div class="skeleton" style="height:120px;animation-delay:.2s"></div>
+        </div>
+      </div>
+      <div class="nudge-section">
+        <div class="nudge-section-hd success-hd">✅ Wins &amp; Progress</div>
+        <div class="nudge-cols">
+          <div class="skeleton" style="height:100px"></div>
+          <div class="skeleton" style="height:110px;animation-delay:.1s"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="savings-modal">
+  <div class="modal">
+    <div class="modal-title">Move to Savings 💜</div>
+    <div class="modal-sub">Choose how much of your salary to set aside right now.</div>
+    <div class="modal-amount" id="modal-amount">₹5,000</div>
+    <div class="modal-income" id="modal-income">of ₹0 salary credit</div>
+    <input type="range" class="amount-slider" id="save-slider" min="500" max="50000" step="500" value="5000"
+      oninput="document.getElementById('modal-amount').textContent=fmt(this.value)"/>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="confirmSalaryToSavings()">✅ Log as Savings</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+const tok = () => localStorage.getItem("authToken");
+const hdr = () => ({ "Content-Type": "application/json", "Authorization": "Bearer " + tok() });
+if (!tok() || tok() === "null") window.location.href = "login.html";
+function logout() { localStorage.clear(); window.location.href = "login.html"; }
+function fmt(n) { return "₹" + Math.round(Number(n)).toLocaleString("en-IN"); }
+
+fetch(API + "/me", { headers: hdr() }).then(r => r.json()).then(d => {
+  if (!d.email) return;
+  document.getElementById("sb-av").textContent = d.email[0].toUpperCase();
+  document.getElementById("sb-email").textContent = d.email;
+}).catch(() => {});
+
+let goalsCache = [];
+async function fetchGoals() {
+  try { const r = await fetch(API + "/goals", { headers: hdr() }); const d = await r.json(); goalsCache = Array.isArray(d) ? d : []; } catch(e) { goalsCache = []; }
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".snooze-wrap")) document.querySelectorAll(".snooze-menu.open").forEach(m => m.classList.remove("open"));
+});
+
+async function loadAll() {
+  fetchGoals();
+  document.getElementById("stats-bar").innerHTML = [0,1,2,3].map(i => `<div class="stat-card skeleton" style="height:68px;animation-delay:${i*.1}s"></div>`).join("");
+  const grid = document.getElementById("nudge-grid");
+  if (grid) grid.innerHTML = `
+    <div class="nudge-section"><div class="nudge-section-hd danger-hd">🚨 Alerts &amp; Warnings</div><div class="nudge-cols">${[120,110,120].map((h,i)=>`<div class="skeleton" style="height:${h}px;animation-delay:${i*.08}s"></div>`).join("")}</div></div>
+    <div class="nudge-section"><div class="nudge-section-hd success-hd">✅ Wins &amp; Progress</div><div class="nudge-cols">${[100,110].map((h,i)=>`<div class="skeleton" style="height:${h}px;animation-delay:${i*.08}s"></div>`).join("")}</div></div>`;
+  try {
+    const resp = await fetch(API + "/nudges/full", { headers: hdr() });
+    const data = await resp.json();
+    try { renderStats(data); } catch(e) { console.error(e); }
+    try { renderSalary(data.salary); } catch(e) { console.error(e); }
+    try { renderNudges(data.nudges || []); } catch(e) { console.error(e); }
+  } catch(e) {
+    document.getElementById("nudge-grid").innerHTML = '<div style="text-align:center;padding:60px;color:var(--ink3);">⚠️ Could not connect to backend.</div>';
+    document.getElementById("stats-bar").innerHTML = "";
+  }
+}
+
+function renderStats(data) {
+  const eom = data.eom || {}, streak = data.streak || {}, nudges = data.nudges || [];
+  const dangerCount = nudges.filter(n => n.type === "danger").length;
+  const pb = eom.projected_balance;
+  const pbClass = pb == null ? "" : pb < 0 ? "danger" : pb < (eom.income||0)*.1 ? "warning" : "success";
+  document.getElementById("stats-bar").innerHTML = `
+    <div class="stat-card ${dangerCount > 0 ? 'danger' : 'success'}"><div class="stat-label">Active Alerts</div><div class="stat-val">${nudges.length}</div><div class="stat-sub">${dangerCount} urgent right now</div></div>
+    <div class="stat-card ${pbClass}"><div class="stat-label">Month-End Forecast</div><div class="stat-val">${pb != null ? fmt(pb) : '—'}</div><div class="stat-sub">${eom.days_remaining != null ? eom.days_remaining+' days left' : 'Add transactions'}</div></div>
+    <div class="stat-card ${(streak.days||0)>=7?'success':(streak.days||0)>=3?'accent':''}"><div class="stat-label">Budget Streak</div><div class="stat-val">${streak.days||0} days ${(streak.days||0)>=7?'🔥':(streak.days||0)>=3?'⭐':''}</div><div class="stat-sub">Daily limit ${streak.daily_limit ? fmt(streak.daily_limit) : '—'}</div></div>
+    <div class="stat-card accent"><div class="stat-label">Daily Spend Rate</div><div class="stat-val">${eom.daily_rate ? fmt(eom.daily_rate) : '—'}</div><div class="stat-sub">${eom.expense_so_far ? fmt(eom.expense_so_far)+' spent so far' : 'This month'}</div></div>`;
+}
+
+function renderSalary(salary) {
+  if (!salary) { document.getElementById("salary-banner").style.display="none"; return; }
+  document.getElementById("salary-amt").textContent = fmt(salary.amount);
+  document.getElementById("salary-banner").style.display = "block";
+  const slider = document.getElementById("save-slider");
+  const suggested = Math.round(salary.amount * 0.1 / 500) * 500;
+  slider.max = Math.floor(salary.amount * 0.5);
+  slider.value = Math.max(500, suggested);
+  document.getElementById("modal-amount").textContent = fmt(slider.value);
+  document.getElementById("modal-income").textContent = "of " + fmt(salary.amount) + " salary credit";
+}
+
+function renderNudges(nudges) {
+  const grid = document.getElementById("nudge-grid");
+  if (!grid) return;
+  const danger = nudges.filter(n => n.type==="danger" || n.type==="warning");
+  const positive = nudges.filter(n => n.type==="success");
+  if (!nudges.length) { grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--ink3);">No nudges yet — add some transactions 🎉</div>'; return; }
+  function makeCards(list) {
+    if (!list.length) return '<div class="nudge-empty">Nothing here yet 🎉</div>';
+    return list.map((n, i) => {
+      const isAI = n.key && n.key.startsWith("ai_");
+      const aiTag = isAI ? '<span class="n-ai-tag">✨ AI</span>' : '';
+      const href = (n.action && n.action.href) ? n.action.href : "transactions.html";
+      const label = (n.action && n.action.label) ? n.action.label : "View";
+      const key = (n.key || ("nudge_"+i)).replace(/['"]/g,"");
+      const goalOptions = goalsCache.map(g => `<option value="${g.id}">${g.name} (${fmt(g.target_amount - g.saved_amount)} left)</option>`).join("");
+      const goalSelect = goalOptions ? `<label style="font-size:10.5px;color:var(--ink4);">→ Goal:</label><select class="save-goal-select" id="gsel-${key}"><option value="">— Just savings —</option>${goalOptions}</select>` : '';
+      return `<div class="nudge-card ${n.type}" id="nc-${key}" style="animation-delay:${i*.06}s">
+        <div class="n-topbar"></div>
+        <div class="n-content">
+          <div class="n-head"><div class="n-icon">${n.icon||'💡'}</div><div class="n-meta"><div class="n-title">${escHtml(n.title)}${aiTag}</div></div></div>
+          <div class="n-msg">${escHtml(n.message)}</div>
+        </div>
+        <div class="n-footer">
+          <span class="n-tip">💡 ${escHtml(n.saving_tip)}</span>
+          <div class="n-actions">
+            <a href="${href}" class="btn-a go">${escHtml(label)} →</a>
+            <button class="btn-a save" onclick="toggleSavePanel('${key}')">💰 Save</button>
+            <div class="snooze-wrap">
+              <button class="btn-a" onclick="toggleSnooze(event,'${key}')">💤</button>
+              <div class="snooze-menu" id="sm-${key}">
+                <div class="snooze-opt" onclick="snooze('${key}',3)">Snooze 3 days</div>
+                <div class="snooze-opt" onclick="snooze('${key}',7)">Snooze 7 days</div>
+                <div class="snooze-opt" onclick="snooze('${key}',14)">Snooze 2 weeks</div>
+              </div>
+            </div>
+            <button class="btn-a dim" onclick="dismiss('${key}')" title="Dismiss">✕</button>
+          </div>
+        </div>
+        <div class="save-panel" id="sp-${key}">
+          <div class="save-row">
+            <input type="range" class="save-slider" id="sl-${key}" min="100" max="50000" step="100" value="1000" oninput="document.getElementById('sd-${key}').textContent=fmt(this.value)"/>
+            <div class="save-amount-disp" id="sd-${key}">₹1,000</div>
+            ${goalSelect}
+            <button class="btn-confirm-save" onclick="quickSave('${key}')">✅ Save</button>
+            <button class="btn-cancel-save" onclick="toggleSavePanel('${key}')">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+  grid.innerHTML = `
+    <div class="nudge-section"><div class="nudge-section-hd danger-hd">🚨 Alerts &amp; Warnings <span class="nudge-count" id="cnt-danger">${danger.length||"–"}</span></div><div class="nudge-cols">${makeCards(danger)}</div></div>
+    <div class="nudge-section"><div class="nudge-section-hd success-hd">✅ Wins &amp; Progress <span class="nudge-count" id="cnt-positive">${positive.length||"–"}</span></div><div class="nudge-cols">${makeCards(positive)}</div></div>`;
+}
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toggleSavePanel(key) {
+  const sp = document.getElementById("sp-"+key);
+  if (!sp) return;
+  sp.classList.toggle("open");
+  if (sp.classList.contains("open")) { const sl = document.getElementById("sl-"+key); if (sl) { sl.value = 1000; document.getElementById("sd-"+key).textContent = "₹1,000"; } }
+}
+async function quickSave(key) {
+  const sl = document.getElementById("sl-"+key);
+  const amt = parseInt(sl ? sl.value : 1000);
+  const gsel = document.getElementById("gsel-"+key);
+  const goalId = gsel ? gsel.value : "";
+  try {
+    await fetch(API + "/add_transaction", { method:"POST", headers:hdr(), body:JSON.stringify({ merchant:"Savings Transfer", amount:-amt, category:"Savings", date:new Date().toISOString().slice(0,10), note:"Saved via AI Nudge" }) });
+  } catch(e) { showToast("⚠️ Could not log savings — check backend"); return; }
+  if (goalId) {
+    try { await fetch(API + `/goals/${goalId}/deposit`, { method:"POST", headers:hdr(), body:JSON.stringify({ amount:amt }) }); showToast(`✅ ${fmt(amt)} saved & added to goal!`); }
+    catch(e) { showToast(`✅ ${fmt(amt)} logged as savings (goal update failed)`); }
+  } else { showToast(`✅ ${fmt(amt)} logged as savings!`); }
+  const sp = document.getElementById("sp-"+key); if (sp) sp.classList.remove("open");
+  loadAll();
+}
+function toggleSnooze(e, key) {
+  e.stopPropagation();
+  const menu = document.getElementById("sm-"+key);
+  const isOpen = menu.classList.contains("open");
+  document.querySelectorAll(".snooze-menu.open").forEach(m => m.classList.remove("open"));
+  if (!isOpen) menu.classList.add("open");
+}
+async function snooze(key, days) {
+  document.querySelectorAll(".snooze-menu.open").forEach(m => m.classList.remove("open"));
+  try { await fetch(API + "/nudges/" + encodeURIComponent(key) + "/snooze", { method:"POST", headers:hdr(), body:JSON.stringify({days}) }); slideOutCard(key); showToast(`💤 Snoozed for ${days} days`); }
+  catch(e) { showToast("Could not snooze — check backend"); }
+}
+async function dismiss(key) {
+  try { await fetch(API + "/nudges/" + encodeURIComponent(key) + "/dismiss", { method:"POST", headers:hdr() }); slideOutCard(key); showToast("✓ Nudge dismissed"); }
+  catch(e) { showToast("Could not dismiss — check backend"); }
+}
+function slideOutCard(key) {
+  const card = document.getElementById("nc-"+key);
+  if (card) { card.style.opacity="0"; card.style.transform="translateX(24px)"; setTimeout(() => { card.remove(); checkEmpty(); }, 300); }
+}
+function checkEmpty() {
+  const grid = document.getElementById("nudge-grid");
+  if (!grid.querySelector(".nudge-card")) grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--ink3);">✅ All nudges cleared! Hit Refresh to check for new alerts.</div>';
+}
+async function resetNudges() {
+  try { await fetch(API + "/nudges/reset", { method:"POST", headers:hdr() }); showToast("↺ All nudges restored"); loadAll(); }
+  catch(e) { showToast("Could not reset"); }
+}
+function openSavingsModal() { document.getElementById("savings-modal").classList.add("open"); }
+function closeModal() { document.getElementById("savings-modal").classList.remove("open"); }
+async function confirmSalaryToSavings() {
+  const amt = parseInt(document.getElementById("save-slider").value);
+  closeModal();
+  document.getElementById("salary-banner").style.display = "none";
+  try {
+    await fetch(API + "/add_transaction", { method:"POST", headers:hdr(), body:JSON.stringify({ merchant:"Salary → Savings", amount:-amt, category:"Savings", date:new Date().toISOString().slice(0,10), note:"Auto-saved from salary via AI Nudge" }) });
+    showToast(`✅ ${fmt(amt)} logged as savings!`); loadAll();
+  } catch(e) { showToast("Could not log. Add manually in Transactions."); }
+}
+function showToast(msg) {
+  const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+loadAll();
+setInterval(loadAll, 5 * 60 * 1000);
+window.addEventListener("pageshow", e => { if (e.persisted) loadAll(); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") loadAll(); });
+</script>
+</body></html>

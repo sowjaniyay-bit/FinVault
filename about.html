@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — About</title>
+<link rel="stylesheet" href="shared.css"/>
+<link rel="manifest" href="pwa-manifest.json"/>
+<meta name="theme-color" content="#7c5cbf"/>
+<style>
+body{margin:0;}
+.hero-about{background:linear-gradient(135deg,var(--v) 0%,#a78bde 60%,var(--v-lt) 100%);border-radius:var(--r2);padding:32px 28px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.hero-about::before{content:'💜';position:absolute;right:-10px;bottom:-20px;font-size:120px;opacity:.08;}
+.ha-gem{width:52px;height:52px;background:rgba(255,255,255,.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;backdrop-filter:blur(10px);}
+.ha-title{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:6px;}
+.ha-sub{font-size:14px;opacity:.85;line-height:1.7;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.feat{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;transition:all .18s;}
+.feat:hover{border-color:var(--lav);box-shadow:var(--s1);}
+.feat-icon{font-size:24px;margin-bottom:10px;}
+.feat-title{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--ink3);line-height:1.6;}
+.tech-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.tech-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;}
+.tech-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink);margin-bottom:10px;}
+.tech-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--brd);font-size:12.5px;}
+.tech-item:last-child{border:none;}
+.tech-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--v-lt);color:var(--v-deep);}
+.version-bar{background:var(--bg-lav);border:1.5px solid var(--lav);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item on" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Info</div><div class="pg-title">About FinVault</div></div>
+  </div>
+  <div class="app-body">
+    <div class="hero-about">
+      <div class="ha-gem">💜</div>
+      <div class="ha-title">FinVault — Smart Finance Manager</div>
+      <div class="ha-sub">A smart, beautiful personal finance manager built for Indian users.<br>Track every rupee. Forecast your future. Get AI-powered nudges and smart alerts.</div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-icon">💳</div><div class="feat-title">Transaction Tracking</div><div class="feat-desc">Auto-categorises Indian merchants — Zomato, Swiggy, Flipkart, UPI, NEFT and more across 11 categories.</div></div>
+      <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">Budget Limits</div><div class="feat-desc">Set ₹ limits per category. Progress bars turn amber then red as you approach limits.</div></div>
+      <div class="feat"><div class="feat-icon">📈</div><div class="feat-title">14-Day Forecast</div><div class="feat-desc">Predicts your balance for next 14 days using your income and spending trends.</div></div>
+      <div class="feat"><div class="feat-icon">🔔</div><div class="feat-title">AI Nudges</div><div class="feat-desc">Proactive smart alerts based on your spending — budget alerts, bill reminders, salary tips.</div></div>
+      <div class="feat"><div class="feat-icon">🏦</div><div class="feat-title">Indian Banks</div><div class="feat-desc">Sample data for SBI, HDFC, ICICI, Axis, Kotak, PNB, BOB with realistic UPI and EMI transactions.</div></div>
+      <div class="feat"><div class="feat-icon">🔔</div><div class="feat-title">Smart Alerts</div><div class="feat-desc">Upcoming bill reminders, overspend warnings, subscription cost alerts, and spending reduction tips.</div></div>
+    </div>
+    <div class="tech-row">
+      <div class="tech-card">
+        <div class="tech-title">🖥 Backend Stack</div>
+        <div class="tech-item"><span>Python Flask</span><span class="tech-badge">API</span></div>
+        <div class="tech-item"><span>SQLite</span><span class="tech-badge">Database</span></div>
+        <div class="tech-item"><span>JWT Auth</span><span class="tech-badge">Security</span></div>
+        <div class="tech-item"><span>PBKDF2-SHA256</span><span class="tech-badge">Encryption</span></div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-title">🎨 Frontend Stack</div>
+        <div class="tech-item"><span>Vanilla HTML / CSS / JS</span><span class="tech-badge">Core</span></div>
+        <div class="tech-item"><span>Chart.js 4.4</span><span class="tech-badge">Charts</span></div>
+        <div class="tech-item"><span>DM Serif Display</span><span class="tech-badge">Font</span></div>
+        <div class="tech-item"><span>Outfit</span><span class="tech-badge">Font</span></div>
+        <div class="tech-item"><span>JetBrains Mono</span><span class="tech-badge">Font</span></div>
+      </div>
+    </div>
+    <div class="version-bar">
+      <div style="font-size:13px;font-weight:700;color:var(--v-deep)">💜 FinVault v2.0</div>
+      <div style="font-size:12px;color:var(--ink4)">Built for Indian personal finance · Powered by Gemini AI</div>
+      <div style="font-size:11px;color:var(--ink4);font-family:'JetBrains Mono',monospace">2025</div>
+    </div>
+  </div>
+</div>
+<script>
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Authorization":"Bearer "+tok()});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+fetch("http://127.0.0.1:5000/me",{headers:hdr()}).then(r=>r.json()).then(d=>{if(!d.email)return;document.getElementById("sb-av").textContent=d.email[0].toUpperCase();document.getElementById("sb-email").textContent=d.email;}).catch(()=>{});
+</script>
+</body></html>

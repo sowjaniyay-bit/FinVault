@@ -1,0 +1,509 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Upcoming Dues</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.sc{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:12px 14px;box-shadow:var(--s1);}
+.sc-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+.sc-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.sc-sub{font-size:10.5px;color:var(--ink4);margin-top:2px;}
+.sc.danger .sc-val{color:var(--red);}
+.sc.warning .sc-val{color:#d97706;}
+.sc.success .sc-val{color:var(--green);}
+.sc.accent .sc-val{color:var(--v);}
+
+/* 14-day timeline */
+.timeline-wrap{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;margin-bottom:18px;box-shadow:var(--s1);}
+.tl-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap;}
+.tl-title{font-size:13px;font-weight:700;color:var(--ink);}
+.tl-sub{font-size:10.5px;color:var(--ink4);margin-top:2px;}
+.tl-strip{display:flex;gap:0;overflow-x:auto;padding-bottom:6px;}
+.tl-strip::-webkit-scrollbar{height:3px;}.tl-strip::-webkit-scrollbar-thumb{background:var(--lav);}
+.tl-day{flex-shrink:0;width:54px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.tl-date{font-size:9px;font-weight:700;color:var(--ink4);text-transform:uppercase;text-align:center;line-height:1.3;}
+.tl-date.today{color:var(--v);font-weight:800;}
+.tl-dot-col{display:flex;flex-direction:column;gap:3px;align-items:center;min-height:54px;position:relative;}
+.tl-line{position:absolute;top:10px;left:50%;width:54px;height:2px;background:var(--brd2);z-index:0;}
+.tl-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;z-index:1;position:relative;cursor:pointer;transition:transform .2s;}
+.tl-dot:hover{transform:scale(1.25);}
+.tl-dot.overdue{background:var(--red);color:#fff;box-shadow:0 0 0 3px rgba(225,29,72,.15);}
+.tl-dot.due_today{background:var(--red);color:#fff;animation:pulse 1.5s infinite;}
+.tl-dot.urgent{background:#f59e0b;color:#fff;}
+.tl-dot.upcoming{background:var(--v);color:#fff;}
+.tl-dot.paid{background:var(--green);color:#fff;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.4)}50%{box-shadow:0 0 0 6px rgba(225,29,72,0)}}
+
+/* Due cards */
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--v);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd);}
+.dues-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.due-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);display:flex;align-items:center;overflow:hidden;box-shadow:var(--s1);animation:slideUp .3s ease forwards;opacity:0;transition:box-shadow .2s;}
+.due-card:hover{box-shadow:var(--s2);}
+.due-card.overdue,.due-card.due_today{border-color:var(--red-bd);}
+.due-card.urgent{border-color:var(--amber-bd);}
+.due-card.upcoming{border-color:var(--lav-bd);}
+.due-card.paid{opacity:.6;}
+.due-strip{width:4px;align-self:stretch;flex-shrink:0;}
+.overdue .due-strip,.due_today .due-strip{background:var(--red);}
+.urgent .due-strip{background:#f59e0b;}
+.upcoming .due-strip{background:var(--v);}
+.later .due-strip{background:var(--ink5);}
+.paid .due-strip{background:var(--green);}
+.due-cat{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin:12px 10px 12px 14px;}
+.overdue .due-cat,.due_today .due-cat{background:var(--red-bg);}
+.urgent .due-cat{background:var(--amber-bg);}
+.upcoming .due-cat{background:var(--bg-lav);}
+.later .due-cat,.paid .due-cat{background:var(--bg);}
+.paid .due-cat{background:var(--green-bg);}
+.due-info{flex:1;min-width:0;padding:12px 0;}
+.due-name{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.due-meta{font-size:11.5px;color:var(--ink4);}
+.due-notes{font-size:11px;color:var(--ink4);margin-top:1px;font-style:italic;}
+.status-badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.overdue .status-badge,.due_today .status-badge{background:var(--red-bg);color:var(--red);}
+.urgent .status-badge{background:var(--amber-bg);color:#92400e;}
+.upcoming .status-badge{background:var(--bg-lav);color:var(--v-deep);}
+.later .status-badge{background:var(--bg);color:var(--ink4);border:1px solid var(--brd2);}
+.paid .status-badge{background:var(--green-bg);color:var(--green);}
+.due-amount{font-family:'DM Serif Display',serif;font-size:17px;color:var(--ink);padding:0 12px;text-align:right;flex-shrink:0;}
+.due-amount .freq{font-size:10px;color:var(--ink4);font-family:'Outfit',sans-serif;display:block;margin-top:1px;}
+.due-actions{display:flex;gap:5px;padding:0 14px 0 6px;flex-shrink:0;}
+.btn-pay{background:var(--green);color:#fff;border:none;border-radius:var(--r);padding:6px 12px;font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-pay:hover{opacity:.85;transform:translateY(-1px);}
+.btn-unpay{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-bd);border-radius:var(--r);padding:6px 10px;font-family:'Outfit',sans-serif;font-size:11.5px;cursor:pointer;}
+.btn-edit-sm{background:var(--bg);border:1.5px solid var(--brd2);color:var(--ink4);border-radius:var(--r);padding:6px 9px;font-family:'Outfit',sans-serif;font-size:11px;cursor:pointer;transition:all .18s;}
+.btn-edit-sm:hover{border-color:var(--v);color:var(--v);}
+.btn-del{background:none;border:none;color:var(--ink5);cursor:pointer;padding:6px 5px;font-size:13px;transition:color .15s;}
+.btn-del:hover{color:var(--red);}
+
+/* Auto-detect banner */
+.detect-banner{background:linear-gradient(135deg,#f0fdf8,#dcfce7);border:1.5px solid var(--green-bd);border-radius:var(--r2);padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;}
+.detect-banner.hidden{display:none;}
+.detect-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+.detect-chip{background:var(--white);border:1.5px solid var(--green-bd);border-radius:var(--r);padding:5px 11px;font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:5px;cursor:pointer;transition:all .18s;}
+.detect-chip:hover{border-color:var(--green);background:var(--green-bg);}
+.detect-chip .chip-amt{font-weight:700;color:var(--green);}
+
+/* Add form — modal-style slide-in panel */
+.add-panel{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:20px 22px;box-shadow:var(--s2);display:none;}
+.add-panel.open{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-field{display:flex;flex-direction:column;gap:4px;}
+.form-field.full{grid-column:1/-1;}
+.form-field label{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--v);}
+.form-field input,.form-field select{padding:9px 12px;border:1.5px solid var(--brd2);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;transition:all .18s;}
+.form-field input:focus,.form-field select:focus{border-color:var(--v);box-shadow:var(--sv);background:var(--white);}
+.form-actions{display:flex;gap:8px;margin-top:14px;}
+.btn-add-form{background:var(--grad);color:#fff;border:none;border-radius:var(--r);padding:10px 22px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-add-form:hover{transform:translateY(-1px);box-shadow:0 4px 14px var(--v-glow);}
+.btn-cancel-form{background:var(--bg);border:1.5px solid var(--brd2);color:var(--ink4);border-radius:var(--r);padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;}
+
+/* Topbar add button */
+.tb-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1.5px solid var(--brd2);background:var(--white);color:var(--ink3);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.tb-btn:hover{border-color:var(--v-mid);color:var(--v);background:var(--bg-lav);}
+.tb-btn.primary{background:var(--grad);color:#fff;border-color:transparent;}
+.tb-btn.primary:hover{opacity:.88;transform:translateY(-1px);}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,5,20,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--r3);padding:26px;width:440px;box-shadow:0 20px 60px rgba(90,50,160,.2);max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--ink);margin-bottom:16px;}
+.modal-btns{display:flex;gap:10px;margin-top:18px;}
+.modal-btns .btn-add-form{flex:1;}
+
+.tl-tooltip{position:fixed;background:var(--ink);color:#fff;padding:7px 11px;border-radius:9px;font-size:12px;pointer-events:none;z-index:999;display:none;white-space:nowrap;line-height:1.5;}
+.empty-state{text-align:center;padding:40px 20px;}
+.empty-state .em-icon{font-size:42px;margin-bottom:10px;}
+.empty-state p{font-size:13.5px;line-height:1.7;color:var(--ink3);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.skeleton{background:linear-gradient(90deg,var(--brd) 25%,var(--brd2) 50%,var(--brd) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r2);}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body class="app-shell">
+
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item on" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+
+<div class="app-main">
+  <div class="app-topbar">
+    <div>
+      <div class="pg-label">Bills & Payments</div>
+      <div class="pg-title">📅 Upcoming Dues</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn primary" onclick="toggleAddPanel()" id="add-toggle-btn">+ Add New Due</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- Add panel — slides open under topbar -->
+    <div class="add-panel" id="add-panel">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;">➕ Add Bill / EMI / Fee</div>
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>Name</label>
+          <input type="text" id="f-name" placeholder="e.g. HDFC Home Loan EMI, Electricity Bill"/>
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select id="f-cat">
+            <option>Electricity</option><option>Water</option><option>Gas</option>
+            <option>Internet</option><option>Mobile</option><option>Loan EMI</option>
+            <option>Insurance</option><option>Rent</option><option>Education</option>
+            <option>Credit Card</option><option>Subscription</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Amount (₹)</label>
+          <input type="number" id="f-amount" placeholder="0" min="1" step="1"/>
+        </div>
+        <div class="form-field">
+          <label>Due Day of Month</label>
+          <input type="number" id="f-day" placeholder="e.g. 5" min="1" max="31" value="1"/>
+        </div>
+        <div class="form-field">
+          <label>Frequency</label>
+          <select id="f-freq">
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Notes (optional)</label>
+          <input type="text" id="f-notes" placeholder="e.g. HDFC Bank, Account ending 1234"/>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-add-form" onclick="addDue()">✅ Add Due</button>
+        <button class="btn-cancel-form" onclick="toggleAddPanel()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="stats-row">
+      <div class="sc skeleton" style="height:66px"></div>
+      <div class="sc skeleton" style="height:66px;animation-delay:.08s"></div>
+      <div class="sc skeleton" style="height:66px;animation-delay:.16s"></div>
+      <div class="sc skeleton" style="height:66px;animation-delay:.24s"></div>
+    </div>
+
+    <!-- 14-Day Timeline -->
+    <div class="timeline-wrap">
+      <div class="tl-hd">
+        <div>
+          <div class="tl-title">📆 14-Day Payment Timeline</div>
+          <div class="tl-sub">Hover dots to see what's due each day</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;">
+          <span style="display:flex;align-items:center;gap:4px;color:var(--red)"><span style="width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block"></span>Overdue</span>
+          <span style="display:flex;align-items:center;gap:4px;color:#d97706"><span style="width:9px;height:9px;border-radius:50%;background:#f59e0b;display:inline-block"></span>This week</span>
+          <span style="display:flex;align-items:center;gap:4px;color:var(--v)"><span style="width:9px;height:9px;border-radius:50%;background:var(--v);display:inline-block"></span>Upcoming</span>
+          <span style="display:flex;align-items:center;gap:4px;color:var(--green)"><span style="width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block"></span>Paid</span>
+        </div>
+      </div>
+      <div class="tl-strip" id="tl-strip">
+        <div style="color:var(--ink4);font-size:12px;padding:16px 0">Loading timeline…</div>
+      </div>
+    </div>
+
+    <!-- Auto-detect banner -->
+    <div class="detect-banner hidden" id="detect-banner">
+      <div style="font-size:26px;flex-shrink:0">🔍</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px">Recurring bills detected from your transactions</div>
+        <div style="font-size:12px;color:var(--ink3)">Click any to add instantly:</div>
+        <div class="detect-chips" id="detect-chips"></div>
+      </div>
+      <button style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:17px;flex-shrink:0;padding:0 4px" onclick="document.getElementById('detect-banner').classList.add('hidden')">✕</button>
+    </div>
+
+    <!-- Dues list -->
+    <div class="sec-lbl">All Bills &amp; Dues</div>
+    <div class="dues-grid" id="dues-grid">
+      <div class="skeleton" style="height:70px"></div>
+      <div class="skeleton" style="height:70px;animation-delay:.08s"></div>
+      <div class="skeleton" style="height:70px;animation-delay:.16s"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Due</div>
+    <input type="hidden" id="edit-id"/>
+    <div class="form-grid">
+      <div class="form-field full"><label>Name</label><input type="text" id="e-name"/></div>
+      <div class="form-field">
+        <label>Category</label>
+        <select id="e-cat">
+          <option>Electricity</option><option>Water</option><option>Gas</option>
+          <option>Internet</option><option>Mobile</option><option>Loan EMI</option>
+          <option>Insurance</option><option>Rent</option><option>Education</option>
+          <option>Credit Card</option><option>Subscription</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Amount (₹)</label><input type="number" id="e-amount" min="1"/></div>
+      <div class="form-field"><label>Due Day</label><input type="number" id="e-day" min="1" max="31"/></div>
+      <div class="form-field">
+        <label>Frequency</label>
+        <select id="e-freq">
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+      <div class="form-field full"><label>Notes</label><input type="text" id="e-notes"/></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-add-form" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-cancel-form" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="tl-tooltip" id="tl-tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+const tok = () => localStorage.getItem("authToken");
+const hdr = () => ({ "Content-Type": "application/json", "Authorization": "Bearer " + tok() });
+if (!tok() || tok() === "null") window.location.href = "login.html";
+function logout() { localStorage.clear(); window.location.href = "login.html"; }
+fetch(API + "/me", { headers: hdr() }).then(r => r.json()).then(d => {
+  if (!d.email) return;
+  document.getElementById("sb-av").textContent = d.email[0].toUpperCase();
+  document.getElementById("sb-email").textContent = d.email;
+}).catch(() => {});
+
+const fmt = n => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
+const CAT_ICONS = {
+  Electricity:"⚡",Water:"💧",Gas:"🔥",Internet:"📶",Mobile:"📱",
+  "Loan EMI":"🏦",Insurance:"🛡️",Rent:"🏠",Education:"🎓",
+  "Credit Card":"💳",Subscription:"📺",Other:"📋"
+};
+function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return s[(v-20)%10]||s[v]||s[0];}
+
+function toggleAddPanel() {
+  const panel = document.getElementById("add-panel");
+  const btn = document.getElementById("add-toggle-btn");
+  const isOpen = panel.classList.toggle("open");
+  btn.textContent = isOpen ? "✕ Cancel" : "+ Add New Due";
+  if (isOpen) setTimeout(() => document.getElementById("f-name").focus(), 100);
+}
+
+function buildTimeline(dues) {
+  const strip = document.getElementById("tl-strip");
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dayMap = {};
+  dues.forEach(d => {
+    const dueDate = new Date(today.getFullYear(), today.getMonth(), d.due_day);
+    if (dueDate < today) dueDate.setMonth(dueDate.getMonth() + 1);
+    const diff = Math.round((dueDate - today) / 86400000);
+    if (diff >= -3 && diff <= 14) { if (!dayMap[diff]) dayMap[diff] = []; dayMap[diff].push(d); }
+  });
+  const days = []; for (let i = -1; i <= 14; i++) days.push(i);
+  strip.innerHTML = days.map(offset => {
+    const d = new Date(today); d.setDate(d.getDate() + offset);
+    const isToday = offset === 0;
+    const dayDues = dayMap[offset] || [];
+    const dLabel = d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"});
+    const dayName = isToday ? "TODAY" : d.toLocaleDateString("en-IN",{weekday:"short"}).toUpperCase();
+    const dots = dayDues.map(due => {
+      const cls = due.is_paid_this_month ? "paid" : due.status;
+      const icon = CAT_ICONS[due.category] || "📋";
+      return `<div class="tl-dot ${cls}" onmouseenter="showTip(event,'${due.name.replace(/'/g,"\\'")} — ${fmt(due.amount)}')" onmouseleave="hideTip()">${icon}</div>`;
+    }).join("") || (isToday ? `<div style="width:2px;height:36px;background:var(--v);border-radius:2px;opacity:.4"></div>` : "");
+    return `<div class="tl-day">
+      <div class="tl-date${isToday?" today":""}">${dayName}<br/>${dLabel}</div>
+      <div class="tl-dot-col"><div class="tl-line"></div>${dots}</div>
+    </div>`;
+  }).join("");
+  if (!dues.length) strip.innerHTML = '<div style="color:var(--ink4);font-size:12px;padding:14px 0">No dues added yet.</div>';
+}
+
+function showTip(e, text) {
+  const tip = document.getElementById("tl-tooltip");
+  tip.textContent = text; tip.style.display = "block";
+  tip.style.left = (e.clientX + 10) + "px"; tip.style.top = (e.clientY - 30) + "px";
+}
+function hideTip() { document.getElementById("tl-tooltip").style.display = "none"; }
+
+async function loadDues() {
+  try {
+    const resp = await fetch(API + "/dues", { headers: hdr() });
+    const data = await resp.json();
+    renderStats(data.summary || {});
+    buildTimeline(data.dues || []);
+    renderDues(data.dues || []);
+    if (data.auto_detected && data.auto_detected.length) showDetectBanner(data.auto_detected, data.dues || []);
+  } catch (e) {
+    document.getElementById("dues-grid").innerHTML = '<div class="empty-state"><div class="em-icon">⚠️</div><p>Could not connect to backend.<br>Make sure it\'s running on port 5000.</p></div>';
+    document.getElementById("stats-row").innerHTML = "";
+  }
+}
+
+function renderStats(s) {
+  const oc = s.overdue_count || 0, uc = s.urgent_count || 0;
+  document.getElementById("stats-row").innerHTML = `
+    <div class="sc ${oc > 0 ? 'danger' : 'success'}"><div class="sc-lbl">Overdue</div><div class="sc-val">${oc}</div><div class="sc-sub">${oc > 0 ? 'Needs attention' : 'All clear!'}</div></div>
+    <div class="sc ${uc > 0 ? 'warning' : ''}"><div class="sc-lbl">Due This Week</div><div class="sc-val">${uc}</div><div class="sc-sub">within 7 days</div></div>
+    <div class="sc danger"><div class="sc-lbl">Unpaid This Month</div><div class="sc-val">${fmt(s.unpaid_amount || 0)}</div><div class="sc-sub">${(s.total_count || 0) - (s.paid_count || 0)} bills pending</div></div>
+    <div class="sc accent"><div class="sc-lbl">Monthly Total</div><div class="sc-val">${fmt(s.total_monthly || 0)}</div><div class="sc-sub">${s.paid_count || 0} of ${s.total_count || 0} paid</div></div>`;
+}
+
+function renderDues(dues) {
+  const grid = document.getElementById("dues-grid");
+  if (!dues.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="em-icon">📅</div><p>No dues yet.<br>Click <strong style="color:var(--v)">+ Add New Due</strong> in the top right to get started.</p></div>`;
+    return;
+  }
+  grid.innerHTML = dues.map((d, i) => {
+    const icon = CAT_ICONS[d.category] || "📋";
+    const isPaid = d.is_paid_this_month;
+    return `<div class="due-card ${d.status}" id="dc-${d.id}" style="animation-delay:${i*0.05}s">
+      <div class="due-strip"></div>
+      <div class="due-cat">${icon}</div>
+      <div class="due-info">
+        <div class="due-name">${d.name}<span class="status-badge">${d.status_label}</span></div>
+        <div class="due-meta">${d.category} · Due on ${d.due_day}${ordinal(d.due_day)} · ${d.frequency}</div>
+        ${d.notes ? `<div class="due-notes">${d.notes}</div>` : ""}
+      </div>
+      <div class="due-amount">${fmt(d.amount)}<span class="freq">${d.frequency}</span></div>
+      <div class="due-actions">
+        ${isPaid
+          ? `<button class="btn-unpay" onclick="markUnpaid(${d.id})">↺ Undo</button>`
+          : `<button class="btn-pay" onclick="markPaid(${d.id})">✓ Mark Paid</button>`}
+        <button class="btn-edit-sm" onclick="openEdit(${d.id})">✎</button>
+        <button class="btn-del" onclick="deleteDue(${d.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function showDetectBanner(detected, existing) {
+  const existingNames = existing.map(d => d.name.toLowerCase());
+  const newOnes = detected.filter(d => !existingNames.includes(d.name.toLowerCase()));
+  if (!newOnes.length) return;
+  document.getElementById("detect-banner").classList.remove("hidden");
+  document.getElementById("detect-chips").innerHTML = newOnes.map(d => `
+    <div class="detect-chip" onclick="addDetected(this,'${encodeURIComponent(JSON.stringify(d))}')">
+      <span>${CAT_ICONS[d.category] || "📋"}</span><span>${d.name}</span>
+      <span class="chip-amt">${fmt(d.amount)}/mo</span>
+      <span style="font-size:10px;color:var(--ink4)">+ Add</span>
+    </div>`).join("");
+}
+
+async function addDetected(el, encoded) {
+  const d = JSON.parse(decodeURIComponent(encoded));
+  el.style.opacity = "0.5"; el.style.pointerEvents = "none";
+  try {
+    await fetch(API + "/dues", { method:"POST", headers:hdr(), body:JSON.stringify({ name:d.name, category:d.category, amount:d.amount, due_day:d.due_day, frequency:"monthly" }) });
+    el.innerHTML = `<span style="color:var(--green);font-weight:700">✓ Added</span>`;
+    showToast("✅ " + d.name + " added!"); loadDues();
+  } catch (e) { showToast("⚠️ Could not add"); }
+}
+
+async function markPaid(id) {
+  try { await fetch(API + `/dues/${id}/mark_paid`, { method:"POST", headers:hdr() }); showToast("✓ Marked as paid!"); loadDues(); }
+  catch (e) { showToast("⚠️ Could not update"); }
+}
+async function markUnpaid(id) {
+  try { await fetch(API + `/dues/${id}/mark_unpaid`, { method:"POST", headers:hdr() }); showToast("↺ Marked as unpaid"); loadDues(); }
+  catch (e) { showToast("⚠️ Could not update"); }
+}
+async function deleteDue(id) {
+  if (!confirm("Delete this due?")) return;
+  try {
+    await fetch(API + `/dues/${id}`, { method:"DELETE", headers:hdr() });
+    const card = document.getElementById("dc-"+id);
+    if (card) { card.style.opacity="0"; card.style.transform="translateX(20px)"; card.style.transition="all .3s"; setTimeout(loadDues, 320); }
+    showToast("🗑 Deleted");
+  } catch (e) { showToast("⚠️ Could not delete"); }
+}
+async function addDue() {
+  const name=document.getElementById("f-name").value.trim();
+  const cat=document.getElementById("f-cat").value;
+  const amount=parseFloat(document.getElementById("f-amount").value);
+  const day=parseInt(document.getElementById("f-day").value);
+  const freq=document.getElementById("f-freq").value;
+  const notes=document.getElementById("f-notes").value.trim();
+  if (!name){showToast("⚠️ Please enter a name");return;}
+  if (!amount||amount<=0){showToast("⚠️ Please enter a valid amount");return;}
+  if (!day||day<1||day>31){showToast("⚠️ Due day must be 1–31");return;}
+  try {
+    await fetch(API+"/dues",{method:"POST",headers:hdr(),body:JSON.stringify({name,category:cat,amount,due_day:day,frequency:freq,notes})});
+    showToast("✅ Due added!"); clearForm(); toggleAddPanel(); loadDues();
+  } catch (e) { showToast("⚠️ Could not add — check backend"); }
+}
+function clearForm(){
+  ["f-name","f-amount","f-notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("f-day").value="1";
+  document.getElementById("f-cat").value="Electricity";
+  document.getElementById("f-freq").value="monthly";
+}
+function openEdit(id) {
+  fetch(API+"/dues",{headers:hdr()}).then(r=>r.json()).then(data=>{
+    const due=(data.dues||[]).find(d=>d.id==id); if(!due)return;
+    document.getElementById("edit-id").value=id;
+    document.getElementById("e-name").value=due.name;
+    document.getElementById("e-cat").value=due.category;
+    document.getElementById("e-amount").value=due.amount;
+    document.getElementById("e-day").value=due.due_day;
+    document.getElementById("e-freq").value=due.frequency;
+    document.getElementById("e-notes").value=due.notes||"";
+    document.getElementById("edit-modal").classList.add("open");
+  });
+}
+async function saveEdit() {
+  const id=document.getElementById("edit-id").value;
+  const name=document.getElementById("e-name").value.trim();
+  const cat=document.getElementById("e-cat").value;
+  const amount=parseFloat(document.getElementById("e-amount").value);
+  const day=parseInt(document.getElementById("e-day").value);
+  const freq=document.getElementById("e-freq").value;
+  const notes=document.getElementById("e-notes").value.trim();
+  if(!name||!amount){showToast("⚠️ Name and amount required");return;}
+  try {
+    await fetch(API+`/dues/${id}`,{method:"PUT",headers:hdr(),body:JSON.stringify({name,category:cat,amount,due_day:day,frequency:freq,notes})});
+    closeModal(); showToast("✅ Updated!"); loadDues();
+  } catch(e){showToast("⚠️ Could not update");}
+}
+function closeModal(){document.getElementById("edit-modal").classList.remove("open");}
+document.getElementById("edit-modal").addEventListener("click",e=>{if(e.target===document.getElementById("edit-modal"))closeModal();});
+function showToast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+loadDues();
+</script>
+</body></html>

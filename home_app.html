@@ -1,0 +1,320 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Home</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+body{margin:0;}
+/* Ticker */
+.ticker{background:linear-gradient(90deg,#5b3fa0,#7c5cbf,#a78bde);padding:7px 0;overflow:hidden;flex-shrink:0;position:relative;}
+.ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none;}
+.ticker::before{left:0;background:linear-gradient(90deg,#5b3fa0,transparent);}
+.ticker::after{right:0;background:linear-gradient(-90deg,#a78bde,transparent);}
+.ticker-track{display:flex;white-space:nowrap;animation:tickerMove 50s linear infinite;}
+.ticker-track:hover{animation-play-state:paused;cursor:pointer;}
+.titem{display:inline-flex;align-items:center;gap:6px;padding:0 28px;font-size:12px;color:rgba(255,255,255,.9);font-style:italic;}
+.tsep{color:rgba(255,255,255,.35);font-style:normal;}
+@keyframes tickerMove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+/* Hero */
+.home-hero{padding:16px 24px;background:var(--white);border-bottom:1.5px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.greet-eyebrow{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--v);}
+.greet-name{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);line-height:1.1;}
+.greet-sub{font-size:12px;color:var(--ink3);margin-top:2px;}
+.topbar-r{display:flex;align-items:center;gap:12px;}
+.livepill{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--green);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+.tav{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;cursor:pointer;transition:transform .2s;position:relative;}
+.tav:hover{transform:scale(1.1);}
+.tmenu{position:absolute;top:42px;right:0;background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);box-shadow:var(--s3);min-width:190px;z-index:500;display:none;overflow:hidden;}
+.tmenu.open{display:block;animation:slideUp .2s ease;}
+.tmh{padding:11px 13px;background:var(--bg-lav);border-bottom:1px solid var(--brd);}
+.tme{font-size:12px;color:var(--v-deep);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tmi{display:flex;align-items:center;gap:8px;padding:9px 13px;font-size:13px;color:var(--ink2);cursor:pointer;text-decoration:none;transition:background .12s;}
+.tmi:hover{background:var(--bg-lav);}
+.tmi.red{color:var(--red);}.tmi.red:hover{background:var(--red-bg);}
+.tmsep{height:1px;background:var(--brd);}
+/* Body */
+.hbody{flex:1;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column;gap:14px;}
+.hbody::-webkit-scrollbar{width:4px;}.hbody::-webkit-scrollbar-thumb{background:var(--lav);border-radius:4px;}
+/* Summary strip */
+.sum-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.ss{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:12px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;opacity:0;animation:cardIn .4s ease forwards;}
+.ss:hover{transform:translateY(-2px);box-shadow:var(--s2);}
+.ss::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.ss-inc::before{background:linear-gradient(90deg,#059669,#34d399);}
+.ss-exp::before{background:linear-gradient(90deg,#e11d48,#fda4af);}
+.ss-net::before{background:var(--grad);}
+.ss-hs::before{background:linear-gradient(90deg,#b45309,#f59e0b);}
+.ss-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:5px;}
+.ss-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:3px;}
+.ss-sub{font-size:10.5px;color:var(--ink4);}
+/* Two-col: recent txns + alerts */
+.two-col{display:grid;grid-template-columns:1fr 300px;gap:14px;}
+/* Recent transactions */
+.rtxn-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;}
+.card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.card-title{font-size:13px;font-weight:700;color:var(--ink);}
+.card-link{font-size:11.5px;color:var(--v);font-weight:700;text-decoration:none;}
+.card-link:hover{text-decoration:underline;}
+.rt{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--brd);opacity:0;animation:fadeIn .3s ease forwards;}
+.rt:last-child{border:none;}
+.rt-ic{width:30px;height:30px;border-radius:8px;background:var(--bg-lav);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.rt-name{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;}
+.rt-cat{font-size:10px;color:var(--ink4);margin-top:1px;}
+.rt-amt{font-family:'JetBrains Mono',monospace;font-size:12.5px;margin-left:auto;flex-shrink:0;}
+/* Alerts + quote */
+.right-col{display:flex;flex-direction:column;gap:10px;}
+.alert-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;}
+.apill{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;border:1.5px solid;font-size:11.5px;line-height:1.45;margin-bottom:7px;opacity:0;animation:slideUp .3s ease forwards;cursor:default;transition:transform .15s;}
+.apill:last-child{margin-bottom:0;}
+.apill:hover{transform:translateX(2px);}
+.aw{background:var(--amber-bg);border-color:var(--amber-bd);color:#78350f;}
+.ai{background:var(--bg-lav);border-color:var(--lav);color:var(--v-deep);}
+.ad{background:var(--red-bg);border-color:var(--red-bd);color:#9f1239;}
+.ao{background:var(--green-bg);border-color:var(--green-bd);color:#065f46;}
+.ap-ic{font-size:14px;flex-shrink:0;margin-top:1px;}
+.ap-title{font-weight:700;font-size:11px;}
+.ap-msg{font-size:10.5px;opacity:.85;}
+/* Daily quote card */
+.quote-card{background:linear-gradient(135deg,var(--v),#a78bde);border-radius:var(--r2);padding:16px 18px;color:#fff;position:relative;overflow:hidden;}
+.quote-card::before{content:'❝';position:absolute;top:-10px;left:10px;font-size:80px;opacity:.1;line-height:1;}
+.qc-text{font-family:'DM Serif Display',serif;font-size:15px;line-height:1.5;margin-bottom:8px;position:relative;}
+.qc-author{font-size:11px;opacity:.75;position:relative;}
+.qc-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 12px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .2s;}
+.qc-btn:hover{background:rgba(255,255,255,.3);}
+/* nav strip */
+.nav-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+.nt{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:11px 8px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;position:relative;overflow:hidden;text-align:center;opacity:0;animation:cardIn .4s ease forwards;}
+.nt:hover{transform:translateY(-3px);box-shadow:var(--s2);border-color:var(--lav);}
+.nt-bar{position:absolute;bottom:0;left:0;right:0;height:3px;}
+.nt-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:transform .2s;}
+.nt:hover .nt-icon{transform:scale(1.18) rotate(-6deg);}
+.nt-lbl{font-size:11.5px;font-weight:700;color:var(--ink);}
+.nt-hint{font-size:9.5px;color:var(--ink4);}
+/* Empty state */
+.emp-card{background:linear-gradient(135deg,var(--v-lt),var(--bg-lav));border:2px dashed var(--lav);border-radius:var(--r2);padding:24px;text-align:center;animation:pulseBorder 2.5s ease-in-out infinite;}
+@keyframes pulseBorder{0%,100%{border-color:var(--lav);}50%{border-color:var(--v-mid);}}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item on" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main" style="height:100vh;overflow:hidden;display:flex;flex-direction:column;">
+  <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+  <div class="home-hero">
+    <div>
+      <div class="greet-eyebrow" id="greet-eyebrow">GOOD MORNING</div>
+      <div class="greet-name" id="greet-name">Welcome back 👋</div>
+      <div class="greet-sub" id="greet-sub">Here's your financial summary for today</div>
+    </div>
+    <div class="topbar-r">
+      <div class="livepill"><span class="live-dot"></span>Live</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink4)" id="tb-time"></span>
+      <div style="position:relative">
+        <div class="tav" id="tav" onclick="toggleMenu()">?</div>
+        <div class="tmenu" id="tmenu">
+          <div class="tmh"><div class="tme" id="menu-email">—</div><div style="font-size:10px;color:var(--ink4);margin-top:2px">Personal Account</div></div>
+          <a class="tmi" href="profile.html">👤 My Profile</a>
+          <a class="tmi" href="about.html">ℹ About FinVault</a>
+          <div class="tmsep"></div>
+          <div class="tmi red" onclick="logout()">↩ Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hbody">
+    <!-- Summary strip -->
+    <div class="sum-strip">
+      <div class="ss ss-inc" onclick="location.href='dashboard.html'" style="animation-delay:.04s"><div class="ss-lbl">💵 Total Income</div><div class="ss-val" id="ss-inc">—</div><div class="ss-sub">All time · click for charts</div></div>
+      <div class="ss ss-exp" onclick="location.href='dashboard.html'" style="animation-delay:.08s"><div class="ss-lbl">💸 Expenses</div><div class="ss-val" id="ss-exp">—</div><div class="ss-sub">All time · click for charts</div></div>
+      <div class="ss ss-net" onclick="location.href='dashboard.html'" style="animation-delay:.12s"><div class="ss-lbl">📊 Net Balance</div><div class="ss-val" id="ss-net">—</div><div class="ss-sub" id="ss-net-sub">Click for details</div></div>
+      <div class="ss ss-hs" onclick="location.href='insights.html'" style="animation-delay:.16s"><div class="ss-lbl">💯 Health Score</div><div class="ss-val" id="ss-hs">—</div><div class="ss-sub">Click for full analysis</div></div>
+    </div>
+    <!-- Empty OR content -->
+    <div id="main-content">
+      <div class="emp-card">
+        <div style="font-size:44px;margin-bottom:12px;display:inline-block;animation:float 3s ease-in-out infinite">🏦</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:8px">Welcome to FinVault!</div>
+        <div style="font-size:13px;color:var(--ink3);line-height:1.8;max-width:380px;margin:0 auto 16px">Load your Indian bank transactions to see your recent activity, spending alerts, and financial health at a glance.</div>
+        <a href="transactions.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--grad);color:#fff;border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px var(--v-glow);transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">💳 Load Bank Data →</a>
+      </div>
+    </div>
+    <!-- Nav strip -->
+    <div class="nav-strip">
+      <a class="nt" href="dashboard.html" style="animation-delay:.05s"><div class="nt-bar" style="background:var(--grad)"></div><div class="nt-icon" style="background:var(--v-lt)">⊞</div><div class="nt-lbl">Dashboard</div><div class="nt-hint">Charts & data</div></a>
+      <a class="nt" href="transactions.html" style="animation-delay:.08s"><div class="nt-bar" style="background:linear-gradient(90deg,#059669,#34d399)"></div><div class="nt-icon" style="background:var(--green-bg)">💳</div><div class="nt-lbl">Transactions</div><div class="nt-hint">Add & view</div></a>
+      <a class="nt" href="budget.html" style="animation-delay:.11s"><div class="nt-bar" style="background:linear-gradient(90deg,#b45309,#f59e0b)"></div><div class="nt-icon" style="background:var(--amber-bg)">📊</div><div class="nt-lbl">Budget</div><div class="nt-hint">Limits & streak</div></a>
+      <a class="nt" href="goals.html" style="animation-delay:.14s"><div class="nt-bar" style="background:linear-gradient(90deg,#0369a1,#38bdf8)"></div><div class="nt-icon" style="background:var(--bg-sky)">🎯</div><div class="nt-lbl">Goals</div><div class="nt-hint">Save smarter</div></a>
+      <a class="nt" href="reports.html" style="animation-delay:.17s"><div class="nt-bar" style="background:linear-gradient(90deg,#7c3aed,#a78bde)"></div><div class="nt-icon" style="background:var(--bg-lav)">▦</div><div class="nt-lbl">Reports</div><div class="nt-hint">PDF & CSV</div></a>
+      <a class="nt" href="ai_nudges.html" style="animation-delay:.2s"><div class="nt-bar" style="background:linear-gradient(90deg,#7c5cbf,#a78bde)"></div><div class="nt-icon" style="background:#f5f0ff">🔔</div><div class="nt-lbl">AI Nudges</div><div class="nt-hint">Smart alerts</div></a>
+    </div>
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const ICONS={Income:"💵",Subscription:"📺",Food:"🍔",Transport:"🚗",Travel:"✈️",Shopping:"🛍️",Utilities:"⚡",Health:"💊",Education:"📚",Entertainment:"🎬",Rent:"🏠",Other:"📦"};
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+const fmt=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+function toggleMenu(){document.getElementById("tmenu").classList.toggle("open");}
+document.addEventListener("click",e=>{if(!e.target.closest(".tav")&&!e.target.closest(".tmenu"))document.getElementById("tmenu").classList.remove("open");});
+
+// Ticker
+const QUOTES=[
+  {q:"A small saving today is a big freedom tomorrow.",a:""},
+  {q:"Spend what is left after saving.",a:"Warren Buffett"},
+  {q:"What gets measured, gets managed.",a:"Peter Drucker"},
+  {q:"Do not save what is left after spending.",a:"Warren Buffett"},
+  {q:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
+  {q:"The secret to wealth: spend less than you earn.",a:"Thomas Stanley"},
+  {q:"Financial freedom is for those who learn about it.",a:""},
+  {q:"Your budget is your permission slip to spend guilt-free.",a:""},
+  {q:"AI Nudges — proactive smart money alerts.",a:"FinVault"},
+  {q:"Track every rupee. The magic is in the awareness.",a:""},
+];
+const doubled=[...QUOTES,...QUOTES];
+document.getElementById("ticker").innerHTML=doubled.map(q=>'<span class="titem">'+q.q+'</span>').join('<span class="titem tsep">•</span>');
+
+// Greeting
+const h=new Date().getHours();
+const tod=h<12?"GOOD MORNING ☀️":h<17?"GOOD AFTERNOON 🌤":h<20?"GOOD EVENING 🌇":"GOOD NIGHT 🌙";
+document.getElementById("greet-eyebrow").textContent=tod;
+const sub=h<12?"Rise early, track smart.":h<17?"Hope your finances are on track.":h<20?"Evening — let's review your day.":"Night check-in. Sleep well!";
+document.getElementById("greet-sub").textContent=sub;
+const clock=()=>{document.getElementById("tb-time").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});};
+clock();setInterval(clock,1000);
+
+// User
+fetch(API+"/me",{headers:hdr()}).then(r=>{if(r.status===401){localStorage.removeItem("authToken");window.location.href="login.html";}return r.json();}).then(d=>{
+  if(!d||!d.email)return;
+  const n=d.email.split("@")[0];
+  const label=n.charAt(0).toUpperCase()+n.slice(1);
+  document.getElementById("greet-name").textContent="Hello, "+label+" 👋";
+  document.getElementById("sb-av").textContent=n[0].toUpperCase();
+  document.getElementById("tav").textContent=n[0].toUpperCase();
+  document.getElementById("sb-email").textContent=d.email;
+  document.getElementById("menu-email").textContent=d.email;
+}).catch(()=>{});
+
+// Animated counter
+function animCount(el,v){
+  v=isNaN(v)?0:Math.abs(Number(v));
+  let n=0;const steps=50;const inc=v/steps;
+  const go=()=>{n=Math.min(n+inc,v);el.textContent=fmt(n);if(n<v)requestAnimationFrame(go);};go();
+}
+
+// DAILY QUOTE
+const DQUOTES=[
+  {q:"The goal is not to be rich. The goal is to be free.",a:"— Unknown"},
+  {q:"Financial peace isn't the acquisition of stuff. It's learning to live on less.",a:"— Dave Ramsey"},
+  {q:"Never spend your money before you have earned it.",a:"— Thomas Jefferson"},
+  {q:"It's not your salary that makes you rich — it's your spending habits.",a:"— Charles A. Jaffe"},
+  {q:"Beware of little expenses. A small leak will sink a great ship.",a:"— Benjamin Franklin"},
+  {q:"The habit of saving is itself an education.",a:"— T.T. Munger"},
+  {q:"A budget tells your money where to go instead of wondering where it went.",a:"— Dave Ramsey"},
+];
+function getDailyQuote(){return DQUOTES[new Date().getDate()%DQUOTES.length];}
+
+// Main data load
+fetch(API+"/cashflow",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  animCount(document.getElementById("ss-inc"),d.total_income);
+  animCount(document.getElementById("ss-exp"),d.total_expense);
+  const net=d.net_cashflow;
+  const netEl=document.getElementById("ss-net");
+  netEl.textContent=fmt(Math.abs(net));
+  netEl.style.color=net>=0?"var(--green)":"var(--red)";
+  document.getElementById("ss-net-sub").textContent=net>=0?"You're in the green ✨":"Overspending ⚠";
+  const hasData=(d.total_income>0||d.total_expense>0);
+  if(hasData)buildContent(d.category_breakdown||{},net);
+}).catch(()=>{});
+
+fetch(API+"/health_score",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  const el=document.getElementById("ss-hs");
+  el.textContent=(d.score||"—")+(d.grade?" ("+d.grade+")":"");
+  if(d.score>=0)el.style.color=d.score>=70?"var(--green)":d.score>=40?"var(--amber)":"var(--red)";
+}).catch(()=>{});
+
+function buildContent(bd,net){
+  // Fetch recent transactions too
+  fetch(API+"/get_transactions",{headers:hdr()}).then(r=>r.json()).then(txns=>{
+    const recent=txns.slice().reverse().slice(0,6);
+    const alerts=buildAlerts(bd,net);
+    const dq=getDailyQuote();
+
+    document.getElementById("main-content").innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 300px;gap:14px;">'
+      // Left: recent transactions
+      +'<div class="rtxn-card">'
+      +'<div class="card-hd"><div class="card-title">🕐 Recent Transactions</div><a class="card-link" href="transactions.html">View all →</a></div>'
+      +(recent.length?recent.map((t,i)=>{
+        const inc=t.category==="Income";
+        return'<div class="rt" style="animation-delay:'+(i*.04)+'s">'
+          +'<div class="rt-ic">'+(ICONS[t.category]||"📦")+'</div>'
+          +'<div style="flex:1;min-width:0"><div class="rt-name">'+t.merchant+'</div><div class="rt-cat">'+t.category+' · '+t.date+'</div></div>'
+          +'<div class="rt-amt" style="color:'+(inc?"var(--green)":"var(--red)")+'"><span style="font-size:10px">'+(inc?"+":"-")+'</span>'+fmt(Math.abs(t.amount))+'</div>'
+          +'</div>';
+      }).join("")
+      :'<div style="color:var(--ink4);font-size:13px;text-align:center;padding:20px 0">No transactions yet. <a href="transactions.html" style="color:var(--v);font-weight:700">Add some →</a></div>')
+      +'</div>'
+      // Right: alerts + quote
+      +'<div style="display:flex;flex-direction:column;gap:10px;">'
+      +'<div class="alert-card"><div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--v);margin-bottom:10px">🔔 Alerts</div>'
+      +alerts.map((a,i)=>'<div class="apill a'+a.t+'" style="animation-delay:'+(i*.07)+'s"><span class="ap-ic">'+a.icon+'</span><div><div class="ap-title">'+a.title+'</div><div class="ap-msg">'+a.msg+'</div></div></div>').join("")
+      +'</div>'
+      +'<div class="quote-card"><div class="qc-text">"'+dq.q+'"</div><button class="qc-btn" onclick="nextQuote(this)">Next quote →</button></div>'
+      +'</div>'
+      +'</div>';
+  }).catch(()=>{});
+}
+
+let _qi=getDailyQuote?new Date().getDate()%DQUOTES.length:0;
+function nextQuote(btn){
+  _qi=(_qi+1)%DQUOTES.length;
+  const p=btn.closest(".quote-card");
+  p.querySelector(".qc-text").textContent='"'+DQUOTES[_qi].q+'"';
+}
+
+function buildAlerts(bd,net){
+  const day=new Date().getDate(),alerts=[];
+  if(bd["Rent"])alerts.push({icon:"🏠",title:"Rent Due",msg:day>=25?"Rent likely due — check your account":day>=20?"Rent due in a few days":"Monthly rent upcoming",t:day>=25?"d":day>=20?"w":"i"});
+  if(bd["Utilities"])alerts.push({icon:"⚡",title:"Utility Bills",msg:day>=18?"Bills due soon — pay by the 20th":"Bills typically due around the 20th",t:day>=18?"w":"i"});
+  if(bd["Subscription"]&&bd["Subscription"]>400)alerts.push({icon:"📺",title:"Subscriptions",msg:"₹"+Math.round(bd["Subscription"]).toLocaleString("en-IN")+"/mo — review unused ones",t:"i"});
+  if(bd["Food"]&&bd["Food"]>2500)alerts.push({icon:"🍔",title:"High Food Spend",msg:"₹"+Math.round(bd["Food"]).toLocaleString("en-IN")+" — try cooking at home to save ₹500+",t:"w"});
+  if(net<0)alerts.push({icon:"⚠️",title:"Overspending",msg:"Expenses exceed income — cut top categories",t:"d"});
+  else if(net>5000)alerts.push({icon:"🌟",title:"Surplus!",msg:fmt(Math.abs(net))+" surplus — move to Goals!",t:"o"});
+  if(!alerts.length)alerts.push({icon:"✅",title:"All Good!",msg:"No urgent alerts. Finances look healthy!",t:"o"});
+  return alerts.slice(0,4).map(a=>({...a,t:{i:"i",w:"w",d:"d",o:"o"}[a.t]||"i"}));
+}
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>

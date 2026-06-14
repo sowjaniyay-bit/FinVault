@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Dashboard</title>
+<link rel="stylesheet" href="shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+body{margin:0;}
+.top-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.ov{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden;transition:all .18s;}
+.ov:hover{box-shadow:var(--s2);transform:translateY(-2px);}
+.ov::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.ov-inc::before{background:linear-gradient(90deg,#059669,#34d399);}
+.ov-exp::before{background:linear-gradient(90deg,#e11d48,#fda4af);}
+.ov-net::before{background:var(--grad);}
+.ov-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:6px;}
+.ov-val{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);margin-bottom:4px;line-height:1;}
+.ov-chip{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;}
+
+.charts-row{display:grid;grid-template-columns:1fr 260px;gap:14px;margin-bottom:14px;}
+.crd{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;}
+.crd-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.crd-title{font-size:13px;font-weight:700;color:var(--ink);}
+.crd-sub{font-size:10px;color:var(--ink4);}
+.ref-btn{background:var(--bg);border:1.5px solid var(--brd2);color:var(--ink4);border-radius:8px;padding:5px 11px;font-size:11px;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .15s;}
+.ref-btn:hover{border-color:var(--v-mid);color:var(--v);}
+.dl{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;}
+.dl-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink3);}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dl-pct{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink4);}
+
+.bot-row{display:grid;grid-template-columns:1fr 1fr 260px;gap:14px;}
+.hs-mini{background:linear-gradient(135deg,var(--bg-peach),var(--white) 80%);border:1.5px solid var(--peach);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;gap:14px;}
+.hs-ring{position:relative;width:72px;height:72px;flex-shrink:0;}
+.hs-svg{width:72px;height:72px;transform:rotate(-90deg);}
+.hs-bg{fill:none;stroke:var(--peach);stroke-width:7;}
+.hs-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);}
+.hs-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.hs-num{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.hs-denom{font-size:8px;color:var(--ink4);}
+
+.cat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cat-lbl{font-size:12px;color:var(--ink3);min-width:90px;}
+.cat-track{flex:1;height:5px;background:var(--brd2);border-radius:3px;overflow:hidden;}
+.cat-fill{height:100%;border-radius:3px;background:var(--grad);transition:width 1s ease;}
+.cat-amt{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink4);min-width:60px;text-align:right;}
+.sub-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg);border:1.5px solid var(--brd);border-radius:8px;margin-bottom:6px;transition:all .12s;}
+.sub-row:hover{border-color:var(--lav);background:var(--bg-lav);}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item on" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Overview</div><div class="pg-title" id="pg-title">Dashboard</div></div>
+    <div class="topbar-right">
+      <div class="live-badge"><span class="live-dot"></span>Live</div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink4)" id="tb-time"></span>
+      <div style="position:relative">
+        <div class="tb-avatar" id="tb-av" onclick="toggleMenu()">?</div>
+        <div class="tb-menu" id="tb-menu">
+          <div class="tb-menu-header"><div class="tb-menu-email" id="menu-email">—</div><div class="tb-menu-role">Personal Account</div></div>
+          <a class="tb-menu-item" href="profile.html">👤 My Profile</a>
+          <a class="tb-menu-item" href="about.html">ℹ About FinVault</a>
+          <div class="tb-menu-sep"></div>
+          <div class="tb-menu-item danger" onclick="logout()">↩ Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="app-body">
+    <div class="top-row">
+      <div class="ov ov-inc"><div class="ov-lbl">💵 Income</div><div class="ov-val" id="m-inc">—</div><div class="ov-chip chip-g">All time</div></div>
+      <div class="ov ov-exp"><div class="ov-lbl">💸 Expenses</div><div class="ov-val" id="m-exp">—</div><div class="ov-chip chip-r">All time</div></div>
+      <div class="ov ov-net"><div class="ov-lbl">📊 Net Balance</div><div class="ov-val" id="m-net">—</div><div class="ov-chip chip-p" id="m-net-chip">Calculating…</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="crd">
+        <div class="crd-hd"><div><div class="crd-title">Monthly Trend</div><div class="crd-sub">Income vs Expenses</div></div><button class="ref-btn" onclick="loadChart()">↻</button></div>
+        <canvas id="cfChart" height="110"></canvas>
+      </div>
+      <div class="crd">
+        <div class="crd-hd"><div><div class="crd-title">Where Money Goes</div><div class="crd-sub">Category split</div></div></div>
+        <div style="position:relative;height:130px"><canvas id="donutChart"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <div style="font-family:'DM Serif Display',serif;font-size:14px;color:var(--ink)" id="donut-total">—</div>
+            <div style="font-size:8px;color:var(--ink4);text-transform:uppercase;letter-spacing:1px">total</div>
+          </div>
+        </div>
+        <div class="dl" id="donut-legend"></div>
+      </div>
+    </div>
+    <div class="bot-row">
+      <div class="crd">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px">By Category</div>
+        <div id="cf-cats"><div style="color:var(--ink4);font-size:12.5px">Load transactions first.</div></div>
+      </div>
+      <div class="crd">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px">Subscriptions <span style="font-size:10px;color:var(--ink4);font-weight:400">auto-detected</span></div>
+        <div id="subs"><div style="color:var(--ink4);font-size:12.5px">Load transactions first.</div></div>
+      </div>
+      <div class="hs-mini">
+        <div class="hs-ring">
+          <svg class="hs-svg" viewBox="0 0 72 72"><circle class="hs-bg" cx="36" cy="36" r="29"/><circle class="hs-fill" id="hs-ring" cx="36" cy="36" r="29" stroke="#b45309" stroke-dasharray="182" stroke-dashoffset="182"/></svg>
+          <div class="hs-ctr"><div class="hs-num" id="hs-num">—</div><div class="hs-denom">/100</div></div>
+        </div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:3px" id="hs-grade">Health Score</div>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.5" id="hs-msg">Add transactions.</div>
+          <a href="insights.html" style="font-size:11px;color:var(--v);font-weight:700;text-decoration:none;margin-top:8px;display:block">Full breakdown →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const ICONS={Income:"💵",Subscription:"📺",Food:"🍔",Transport:"🚗",Travel:"✈️",Shopping:"🛍️",Utilities:"⚡",Health:"💊",Education:"📚",Entertainment:"🎬",Rent:"🏠",Other:"📦"};
+const COLORS=["#7c5cbf","#059669","#e11d48","#b45309","#0369a1","#7c3aed","#c026d3","#0f766e"];
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+const fmt=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+function toggleMenu(){document.getElementById("tb-menu").classList.toggle("open");}
+document.addEventListener("click",e=>{if(!e.target.closest(".tb-avatar")&&!e.target.closest(".tb-menu"))document.getElementById("tb-menu").classList.remove("open");});
+async function apiFetch(url,opts={}){const r=await fetch(url,opts);if(r.status===401){localStorage.removeItem("authToken");window.location.href="login.html";throw new Error("401");}return r;}
+const clock=()=>document.getElementById("tb-time").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});clock();setInterval(clock,1000);
+fetch(API+"/me",{headers:hdr()}).then(r=>r.json()).then(d=>{if(!d.email)return;const n=d.email.split("@")[0];document.getElementById("pg-title").textContent="Hey, "+n.charAt(0).toUpperCase()+n.slice(1)+" 👋";document.getElementById("sb-av").textContent=n[0].toUpperCase();document.getElementById("tb-av").textContent=n[0].toUpperCase();document.getElementById("sb-email").textContent=d.email;document.getElementById("menu-email").textContent=d.email;}).catch(()=>{});
+function animNum(el,v){v=isNaN(v)?0:Number(v);let n=0;const s=Math.max(1,Math.ceil(Math.abs(v)/60));const t=()=>{n=Math.min(n+s,Math.abs(v));el.textContent=fmt(n);if(n<Math.abs(v))requestAnimationFrame(t);};t();}
+async function loadCF(){try{const d=await apiFetch(API+"/cashflow",{headers:hdr()}).then(r=>r.json());animNum(document.getElementById("m-inc"),d.total_income);animNum(document.getElementById("m-exp"),d.total_expense);const net=d.net_cashflow;animNum(document.getElementById("m-net"),Math.abs(net));document.getElementById("m-net").style.color=net>=0?"var(--green)":"var(--red)";const nc=document.getElementById("m-net-chip");nc.textContent=net>=0?"In the green ✨":"Overspending";nc.className="ov-chip "+(net>=0?"chip-g":"chip-r");if(d.category_breakdown){const cats=Object.entries(d.category_breakdown).filter(([c])=>c!=="Income").sort((a,b)=>b[1]-a[1]).slice(0,6);const maxV=Math.max(...cats.map(c=>c[1]),1);document.getElementById("cf-cats").innerHTML=cats.map(([c,v])=>"<div class='cat-row'><span class='cat-lbl'>"+(ICONS[c]||"📦")+" "+c+"</span><div class='cat-track'><div class='cat-fill' style='width:0' data-w='"+Math.round(v/maxV*100)+"%'></div></div><span class='cat-amt'>"+fmt(v)+"</span></div>").join("");setTimeout(()=>document.querySelectorAll(".cat-fill").forEach(el=>el.style.width=el.dataset.w),200);buildDonut(d.category_breakdown);}	}catch(e){}}
+function buildDonut(bd){const cats=Object.entries(bd).filter(([c])=>c!=="Income").sort((a,b)=>b[1]-a[1]).slice(0,7);if(!cats.length)return;const vals=cats.map(c=>c[1]),total=vals.reduce((a,b)=>a+b,0)||1,colors=COLORS.slice(0,cats.length);const ctx=document.getElementById("donutChart").getContext("2d");if(window._dc)window._dc.destroy();window._dc=new Chart(ctx,{type:"doughnut",data:{labels:cats.map(c=>c[0]),datasets:[{data:vals,backgroundColor:colors,borderWidth:2,borderColor:"#fff",hoverOffset:5}]},options:{cutout:"68%",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:"#fff",titleColor:"#1a1028",bodyColor:"#7a6d92",borderColor:"#ede8f5",borderWidth:1,cornerRadius:10,padding:9,callbacks:{label:c=>c.label+": "+fmt(c.raw)+" ("+Math.round(c.raw/total*100)+"%)"}}}}});document.getElementById("donut-total").textContent=fmt(total);document.getElementById("donut-legend").innerHTML=cats.map((c,i)=>"<div class='dl-i'><div class='dl-dot' style='background:"+colors[i]+"'></div><span>"+c[0]+"</span><span class='dl-pct'>"+Math.round(vals[i]/total*100)+"%</span></div>").join("");}
+async function loadHS(){try{const d=await apiFetch(API+"/health_score",{headers:hdr()}).then(r=>r.json());const s=d.score||0;document.getElementById("hs-num").textContent=s;document.getElementById("hs-grade").textContent="Grade "+d.grade;document.getElementById("hs-msg").textContent=d.message||"";const col=s>=70?"#059669":s>=40?"#b45309":"#e11d48";setTimeout(()=>{document.getElementById("hs-ring").style.strokeDashoffset=182-(s/100)*182;document.getElementById("hs-ring").style.stroke=col;document.getElementById("hs-grade").style.color=col;},300);}catch(e){}}
+async function loadSubs(){try{const data=await apiFetch(API+"/detect_subscriptions",{headers:hdr()}).then(r=>r.json());document.getElementById("subs").innerHTML=data.length?data.map(s=>"<div class='sub-row'><span style='font-size:13px;font-weight:600;color:var(--ink2)'>📺 "+s.merchant+"</span><span style='font-family:JetBrains Mono,monospace;font-size:12px;color:var(--v)'>"+fmt(Math.abs(s.amount))+"/mo</span></div>").join(""):'<div style="color:var(--ink4);font-size:12.5px">No recurring detected.</div>';}catch(e){}}
+async function loadChart(){try{const data=await apiFetch(API+"/monthly_summary",{headers:hdr()}).then(r=>r.json());const labels=Object.keys(data),inc=labels.map(m=>data[m].income),exp=labels.map(m=>data[m].expense);const ctx=document.getElementById("cfChart").getContext("2d");if(window._cc)window._cc.destroy();window._cc=new Chart(ctx,{type:"bar",data:{labels,datasets:[{label:"Income",data:inc,backgroundColor:"rgba(5,150,105,0.13)",borderColor:"#059669",borderWidth:2,borderRadius:5,borderSkipped:false},{label:"Expense",data:exp,backgroundColor:"rgba(124,92,191,0.10)",borderColor:"#7c5cbf",borderWidth:2,borderRadius:5,borderSkipped:false}]},options:{responsive:true,animation:{duration:800},plugins:{legend:{labels:{color:"#7a6d92",font:{size:10,family:"Outfit"},usePointStyle:true}},tooltip:{backgroundColor:"#fff",titleColor:"#1a1028",bodyColor:"#7a6d92",borderColor:"#ede8f5",borderWidth:1.5,cornerRadius:10,padding:10,callbacks:{label:c=>"₹"+c.raw.toLocaleString("en-IN")}}},scales:{x:{ticks:{color:"#b0a5c4",font:{size:9}},grid:{display:false},border:{display:false}},y:{ticks:{color:"#b0a5c4",font:{size:9},callback:v=>"₹"+v.toLocaleString()},grid:{color:"#f0ecfa"},border:{display:false}}}}});}catch(e){}}
+loadCF();loadHS();loadSubs();loadChart();
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>

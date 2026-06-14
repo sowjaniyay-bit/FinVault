@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Sign In</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+body{min-height:100vh;display:grid;grid-template-columns:460px 1fr;background:var(--bg);}
+.left{background:var(--white);border-right:1.5px solid var(--brd);display:flex;flex-direction:column;padding:52px 48px;position:relative;overflow:hidden;}
+.left::before{content:'';position:absolute;top:-80px;left:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,191,0.07),transparent);pointer-events:none;}
+.l-brand{display:flex;align-items:center;gap:11px;margin-bottom:52px;opacity:0;animation:slideUp .5s ease forwards;}
+.l-gem{width:38px;height:38px;background:var(--grad);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 16px var(--v-glow);}
+.l-wordmark{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.f-label{font-size:9px;font-weight:700;letter-spacing:2.8px;text-transform:uppercase;color:var(--v);margin-bottom:10px;opacity:0;animation:slideUp .5s .1s ease forwards;}
+.f-title{font-family:'DM Serif Display',serif;font-size:38px;color:var(--ink);line-height:1.1;margin-bottom:8px;opacity:0;animation:slideUp .5s .17s ease forwards;}
+.f-title em{color:var(--v);font-style:italic;}
+.f-sub{font-size:13.5px;color:var(--ink3);line-height:1.7;margin-bottom:32px;opacity:0;animation:slideUp .5s .24s ease forwards;}
+.fld{margin-bottom:16px;opacity:0;animation:slideUp .5s ease forwards;}
+.fld:nth-child(1){animation-delay:.32s}.fld:nth-child(2){animation-delay:.39s}
+.btn-submit{width:100%;background:var(--grad);color:#fff;border:none;border-radius:var(--r);padding:14px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;opacity:0;animation:slideUp .5s .48s ease forwards;}
+.btn-submit::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);animation:shimmer 3.5s 1s infinite;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--v-glow);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.alert{font-size:13px;margin-top:12px;border-radius:var(--r);padding:10px 14px;display:none;}
+.alert-ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+.alert-err{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--brd2);}
+.divider span{font-size:11.5px;color:var(--ink4);}
+.f-foot{text-align:center;font-size:14px;color:var(--ink3);opacity:0;animation:slideUp .5s .54s ease forwards;}
+.f-foot a{color:var(--v);font-weight:700;text-decoration:none;}
+.f-foot a:hover{text-decoration:underline;}
+.right{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;background:var(--bg);}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);animation:meshMove 10s ease-in-out infinite;}
+.b1{width:480px;height:480px;top:-120px;right:-80px;background:radial-gradient(circle,rgba(199,180,255,0.45),transparent);animation-delay:0s;}
+.b2{width:380px;height:380px;bottom:-80px;left:-60px;background:radial-gradient(circle,rgba(167,240,214,0.38),transparent);animation-delay:-4s;}
+.b3{width:280px;height:280px;top:40%;left:35%;background:radial-gradient(circle,rgba(255,210,190,0.35),transparent);animation-delay:-7s;}
+.r-content{position:relative;z-index:1;text-align:center;max-width:400px;}
+.r-headline{font-family:'DM Serif Display',serif;font-size:clamp(36px,4vw,52px);color:var(--ink);line-height:1.08;letter-spacing:-1px;margin-bottom:20px;opacity:0;animation:slideUp .7s .2s ease forwards;}
+.r-headline em{color:var(--v);font-style:italic;}
+.r-sub{font-size:15px;color:var(--ink3);line-height:1.8;margin-bottom:40px;opacity:0;animation:slideUp .7s .35s ease forwards;}
+.stat-float{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;opacity:0;animation:slideUp .7s .5s ease forwards;}
+.sf{background:rgba(255,255,255,0.75);backdrop-filter:blur(16px);border:1.5px solid rgba(255,255,255,0.9);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(90,50,160,0.06);transition:transform .2s;}
+.sf:hover{transform:translateX(6px);}
+.sf-tint{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sf-label{font-size:11px;color:var(--ink3);margin-bottom:2px;font-weight:500;}
+.sf-val{font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);}
+@media(max-width:860px){body{grid-template-columns:1fr}.right{display:none}.left{padding:40px 28px}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="l-brand"><div class="l-gem">💜</div><div class="l-wordmark">FinVault</div></div>
+  <div class="f-label">Welcome back</div>
+  <div class="f-title">Sign into<br>your <em>vault.</em></div>
+  <div class="f-sub">Track every rupee. Forecast your balance. Get AI advice.</div>
+  <div class="fld"><label class="lbl">Email address</label><input class="inp" id="em" type="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+  <div class="fld"><label class="lbl">Password</label><input class="inp" id="pw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+  <button class="btn-submit" id="login-btn" onclick="doLogin()">Sign In →</button>
+  <div class="alert" id="msg"></div>
+  <div class="divider"><span>don't have an account?</span></div>
+  <div class="f-foot"><a href="signup.html">Create one free →</a></div>
+</div>
+<div class="right">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="r-content">
+    <div class="r-headline">Your money,<br><em>finally</em><br>makes sense.</div>
+    <div class="r-sub">A beautifully simple way to track spending, forecast your balance, and grow your savings.</div>
+    <div class="stat-float">
+      <div class="sf"><div class="sf-tint" style="background:var(--v-lt)">📊</div><div><div class="sf-label">Visual dashboard</div><div class="sf-val">All your finances at a glance</div></div></div>
+      <div class="sf"><div class="sf-tint" style="background:var(--bg-mint)">📈</div><div><div class="sf-label">14-day forecast</div><div class="sf-val">See your balance before spending</div></div></div>
+      <div class="sf"><div class="sf-tint" style="background:var(--bg-peach)">🤖</div><div><div class="sf-label">AI advisor</div><div class="sf-val">Personalised advice from your data</div></div></div>
+      <div class="sf"><div class="sf-tint" style="background:var(--bg-sky)">🎯</div><div><div class="sf-label">Savings goals</div><div class="sf-val">Animated rings that fill as you save</div></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const API = "http://127.0.0.1:5000";
+
+function showMsg(txt, type) {
+  const el = document.getElementById("msg");
+  el.textContent = txt;
+  el.className = "alert " + (type === "ok" ? "alert-ok" : "alert-err");
+  el.style.display = "block";
+}
+
+async function doLogin() {
+  const em = document.getElementById("em").value.trim();
+  const pw = document.getElementById("pw").value;
+  const btn = document.getElementById("login-btn");
+  if (!em || !pw) { showMsg("Please fill in all fields.", "err"); return; }
+  btn.disabled = true; btn.textContent = "Signing in…";
+  try {
+    const resp = await fetch(API + "/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: em, password: pw })
+    });
+    const d = await resp.json();
+    if (d.token) {
+      localStorage.setItem("authToken", d.token);
+      showMsg("✓ Success! Loading your dashboard…", "ok");
+      window.location.href = "home_app.html";
+    } else {
+      showMsg(d.error || "Invalid credentials.", "err");
+      btn.disabled = false; btn.textContent = "Sign In →";
+    }
+  } catch (e) {
+    showMsg("Cannot reach server. Run: cd backend && python app.py", "err");
+    btn.disabled = false; btn.textContent = "Sign In →";
+  }
+}
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>

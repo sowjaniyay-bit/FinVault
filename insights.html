@@ -1,0 +1,337 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — Insights</title>
+<link rel="stylesheet" href="shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+body{margin:0;}
+.ins-body{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:14px;}
+.ins-body::-webkit-scrollbar{width:4px;}.ins-body::-webkit-scrollbar-thumb{background:var(--lav);border-radius:4px;}
+.ins-top{display:grid;grid-template-columns:190px 1fr 210px;gap:14px;}
+.ring-card{background:linear-gradient(160deg,var(--bg-peach),var(--white) 75%);border:1.5px solid var(--peach);border-radius:var(--r2);padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rw{position:relative;width:120px;height:120px;margin-bottom:10px;}
+.r-svg{width:120px;height:120px;transform:rotate(-90deg);}
+.r-bg{fill:none;stroke:var(--peach);stroke-width:9;}
+.r-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1);}
+.r-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.r-n{font-family:'DM Serif Display',serif;font-size:38px;color:var(--ink);line-height:1;}
+.r-d{font-size:10px;color:var(--ink4);}
+.r-grade{font-family:'DM Serif Display',serif;font-size:15px;margin-bottom:3px;}
+.r-msg{font-size:11px;color:var(--ink3);text-align:center;line-height:1.5;max-width:160px;}
+.bd-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:16px 18px;}
+.bd-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;opacity:0;animation:slideUp .4s ease forwards;}
+.bd-ic{width:30px;height:30px;background:var(--bg-lav);border:1.5px solid var(--lav);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.bd-info{flex:1;min-width:0;}
+.bd-name{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:3px;}
+.bd-track{height:5px;background:var(--brd2);border-radius:3px;overflow:hidden;}
+.bd-fill{height:100%;border-radius:3px;transition:width 1.2s ease;}
+.bd-meta{display:flex;justify-content:space-between;margin-top:2px;}
+.bd-score{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;}
+.bd-detail{font-size:10px;color:var(--ink4);}
+.radar-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;}
+
+/* Forecast card — redesigned for clarity */
+.fc-full{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:18px 22px;}
+.fc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;}
+.fc-title{font-size:13px;font-weight:700;color:var(--ink);}
+.fc-sub{font-size:10.5px;color:var(--ink4);margin-top:2px;}
+
+/* Summary cards row */
+.fc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.fc-scard{border-radius:var(--r2);padding:12px 14px;border:1.5px solid var(--brd);}
+.fc-scard-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+.fc-scard-val{font-family:'DM Serif Display',serif;font-size:22px;line-height:1;}
+.fc-scard-sub{font-size:10.5px;color:var(--ink4);margin-top:3px;}
+.fc-scard.today{background:var(--bg-lav);border-color:var(--lav);}
+.fc-scard.today .fc-scard-val{color:var(--v);}
+.fc-scard.mid{background:var(--bg);}
+.fc-scard.end-pos{background:var(--green-bg);border-color:var(--green-bd);}
+.fc-scard.end-pos .fc-scard-val{color:var(--green);}
+.fc-scard.end-neg{background:var(--red-bg);border-color:var(--red-bd);}
+.fc-scard.end-neg .fc-scard-val{color:var(--red);}
+
+/* Day-by-day table */
+.fc-table-wrap{overflow-x:auto;margin-bottom:12px;}
+.fc-table{width:100%;border-collapse:collapse;font-size:12px;}
+.fc-table th{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:0 8px 8px;text-align:left;border-bottom:1.5px solid var(--brd);}
+.fc-table td{padding:7px 8px;border-bottom:1px solid var(--brd);color:var(--ink2);vertical-align:middle;}
+.fc-table tr:last-child td{border-bottom:none;}
+.fc-table tr.today-row td{background:var(--bg-lav);}
+.fc-table tr.neg-row td{background:var(--red-bg);}
+.fc-bar-cell{min-width:100px;}
+.fc-bar-track{height:6px;background:var(--brd2);border-radius:4px;overflow:hidden;}
+.fc-bar-fill{height:100%;border-radius:4px;transition:width .8s ease;}
+.fc-amt{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.fc-amt.pos{color:var(--green);}
+.fc-amt.neg{color:var(--red);}
+.fc-amt.neutral{color:var(--v);}
+.fc-change{font-size:10.5px;}
+.fc-change.up{color:var(--green);}
+.fc-change.dn{color:var(--red);}
+.fc-pill-row{display:flex;gap:6px;margin-bottom:14px;}
+.fc-pill{font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;border:1.5px solid var(--brd2);background:var(--bg);color:var(--ink4);font-family:'Outfit',sans-serif;transition:all .18s;}
+.fc-pill.active{background:var(--grad);color:#fff;border-color:transparent;}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item on" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Analysis</div><div class="pg-title">Financial Insights</div></div>
+    <div class="topbar-right"><div class="live-badge"><span class="live-dot"></span>Live</div></div>
+  </div>
+  <div class="ins-body">
+
+    <!-- Row 1: Score + Breakdown + Radar -->
+    <div class="ins-top">
+      <div class="ring-card">
+        <div class="rw">
+          <svg class="r-svg" viewBox="0 0 120 120">
+            <circle class="r-bg" cx="60" cy="60" r="50"/>
+            <circle class="r-fill" id="ring" cx="60" cy="60" r="50" stroke="#b45309" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="r-ctr"><div class="r-n" id="s-num">—</div><div class="r-d">/100</div></div>
+        </div>
+        <div class="r-grade" id="s-grade" style="color:var(--v)">Health Score</div>
+        <div class="r-msg" id="s-msg">Add transactions to see score</div>
+      </div>
+      <div class="bd-card">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--v);margin-bottom:12px">Score Breakdown</div>
+        <div id="bd-list"><div style="color:var(--ink4);font-size:12.5px">Load transactions to see breakdown.</div></div>
+      </div>
+      <div class="radar-card">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--v);margin-bottom:8px">Spending Radar</div>
+        <div style="position:relative;height:180px"><canvas id="radarChart"></canvas></div>
+        <div id="radar-empty" style="color:var(--ink4);font-size:12px;text-align:center;padding:8px 0;display:none">No category data yet</div>
+      </div>
+    </div>
+
+    <!-- Row 2: 14-Day Forecast — clear table view -->
+    <div class="fc-full">
+      <div class="fc-hd">
+        <div>
+          <div class="fc-title">🔮 14-Day Balance Forecast</div>
+          <div class="fc-sub">Based on your average daily spending — shows where your balance is headed day by day</div>
+        </div>
+        <div class="fc-pill-row">
+          <div class="fc-pill active" onclick="setRange(7,this)">7 Days</div>
+          <div class="fc-pill" onclick="setRange(14,this)">14 Days</div>
+        </div>
+      </div>
+      <div class="fc-summary">
+        <div class="fc-scard today">
+          <div class="fc-scard-lbl">📍 Right Now</div>
+          <div class="fc-scard-val" id="fc-today">—</div>
+          <div class="fc-scard-sub">Current balance</div>
+        </div>
+        <div class="fc-scard mid" id="fc-mid-card">
+          <div class="fc-scard-lbl" id="fc-mid-lbl">📅 Day 7</div>
+          <div class="fc-scard-val" id="fc-day7" style="color:var(--v)">—</div>
+          <div class="fc-scard-sub">Halfway point</div>
+        </div>
+        <div class="fc-scard end-pos" id="fc-end-card">
+          <div class="fc-scard-lbl" id="fc-end-lbl">🏁 Day 14</div>
+          <div class="fc-scard-val" id="fc-val">—</div>
+          <div class="fc-scard-sub" id="fc-end-sub">Projected balance</div>
+        </div>
+      </div>
+      <div class="fc-table-wrap" id="fc-table-wrap">
+        <table class="fc-table">
+          <thead><tr>
+            <th>Date</th><th>Day</th><th>Balance</th><th>Daily Change</th><th style="min-width:120px">Trend</th>
+          </tr></thead>
+          <tbody id="fc-tbody"><tr><td colspan="5" style="text-align:center;color:var(--ink4);padding:20px">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div id="fc-warn" style="margin-top:10px"></div>
+      <div id="fc-empty" style="display:none;color:var(--ink4);font-size:12.5px;padding:20px 0;text-align:center">Add transactions to generate forecast.</div>
+    </div>
+
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+const fmt=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+async function apiFetch(url,opts={}){const r=await fetch(url,opts);if(r.status===401){localStorage.removeItem("authToken");window.location.href="login.html";throw new Error("401");}return r;}
+fetch(API+"/me",{headers:hdr()}).then(r=>r.json()).then(d=>{if(!d.email)return;const n=d.email.split("@")[0];document.getElementById("sb-av").textContent=n[0].toUpperCase();document.getElementById("sb-email").textContent=d.email;}).catch(()=>{});
+
+let _allFcPts=[], _fcRange=7;
+
+function setRange(n,el){
+  _fcRange=n;
+  document.querySelectorAll(".fc-pill").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  drawForecast(_allFcPts,n);
+}
+
+function drawForecast(pts,range){
+  if(!pts||!pts.length)return;
+  const slice=pts.slice(0,range);
+  const maxBal=Math.max(...slice.map(p=>Math.abs(p.predicted_balance)),1);
+  const dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  // Update mid-point label based on range
+  const midIdx=Math.floor(range/2)-1;
+  document.getElementById("fc-mid-lbl").textContent="📅 Day "+(midIdx+1);
+
+  const tbody=document.getElementById("fc-tbody");
+  tbody.innerHTML=slice.map((p,i)=>{
+    const bal=p.predicted_balance;
+    const prevBal=i===0?(pts[0].predicted_balance):slice[i-1].predicted_balance;
+    const change=bal-prevBal;
+    const isNeg=bal<0;
+    const isToday=i===0;
+    const barPct=Math.round((Math.abs(bal)/maxBal)*100);
+    const barColor=isNeg?"#e11d48":i===slice.length-1?"#059669":"#7c5cbf";
+    const d=new Date(p.date);
+    const dateStr=d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"});
+    const dayStr=isToday?"Today":dayNames[d.getDay()];
+    const changeStr=i===0?"—":(change>=0?"+":"")+fmt(change);
+    const changeClass=i===0?"":"fc-change "+(change>=0?"up":"dn");
+    const rowClass=isToday?"today-row":isNeg?"neg-row":"";
+    return `<tr class="${rowClass}">
+      <td style="color:${isToday?"var(--v)":"var(--ink2)"};font-weight:${isToday?700:400}">${dateStr}</td>
+      <td style="color:var(--ink4);font-size:11px">${dayStr}</td>
+      <td><span class="fc-amt ${isNeg?"neg":isToday?"neutral":"pos"}">${fmt(bal)}</span>${isNeg?' <span style="font-size:10px;color:var(--red)">⚠ Negative</span>':""}</td>
+      <td><span class="${changeClass}">${changeStr}</span></td>
+      <td class="fc-bar-cell">
+        <div class="fc-bar-track" title="${fmt(bal)}">
+          <div class="fc-bar-fill" style="width:${barPct}%;background:${barColor}"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // Update mid card
+  if(slice[midIdx]){
+    const mv=slice[midIdx].predicted_balance;
+    document.getElementById("fc-day7").textContent=fmt(mv);
+    document.getElementById("fc-day7").style.color=mv>=0?"var(--v)":"var(--red)";
+    const mc=document.getElementById("fc-mid-card");
+    mc.className="fc-scard mid"+(mv<0?" end-neg":"");
+  }
+}
+
+async function load(){
+  const [hs,fc,cf]=await Promise.allSettled([
+    apiFetch(API+"/health_score",{headers:hdr()}).then(r=>r.json()),
+    apiFetch(API+"/balance_forecast",{headers:hdr()}).then(r=>r.json()),
+    apiFetch(API+"/cashflow",{headers:hdr()}).then(r=>r.json()),
+  ]);
+
+  // ── HEALTH SCORE ──
+  if(hs.status==="fulfilled"){
+    const s=hs.value,score=s.score||0;
+    document.getElementById("s-num").textContent=score;
+    document.getElementById("s-grade").textContent="Grade "+s.grade;
+    document.getElementById("s-msg").textContent=s.message||"";
+    const col=score>=70?"#059669":score>=40?"#b45309":"#e11d48";
+    setTimeout(()=>{
+      document.getElementById("ring").style.strokeDashoffset=314-(score/100)*314;
+      document.getElementById("ring").style.stroke=col;
+      document.getElementById("s-grade").style.color=col;
+    },300);
+    if(s.breakdown&&Object.keys(s.breakdown).length){
+      const icons={"Savings Rate":"💵","Expense Consistency":"📊","Subscription Control":"📺","Income Regularity":"📈","Spending Diversity":"🎯"};
+      const entries=Object.entries(s.breakdown);
+      document.getElementById("bd-list").innerHTML=entries.map(([key,val],i)=>{
+        const sc=val.score||0,mx=val.max||20,pct=Math.round((sc/mx)*100);
+        const c=pct>=70?"#059669":pct>=40?"#b45309":"#e11d48";
+        return'<div class="bd-row" style="animation-delay:'+(i*.07)+'s">'
+          +'<div class="bd-ic">'+(icons[key]||"💡")+'</div>'
+          +'<div class="bd-info">'
+          +'<div class="bd-name">'+key+'</div>'
+          +'<div class="bd-track"><div class="bd-fill" style="width:0;background:'+c+'" data-w="'+pct+'%"></div></div>'
+          +'<div class="bd-meta"><span class="bd-score" style="color:'+c+'">'+sc+'/'+mx+'</span><span class="bd-detail">'+(val.detail||"")+'</span></div>'
+          +'</div></div>';
+      }).join("");
+      setTimeout(()=>document.querySelectorAll(".bd-fill").forEach(el=>el.style.width=el.dataset.w),400);
+    }
+  }
+
+  // ── RADAR ──
+  if(cf.status==="fulfilled"&&cf.value.category_breakdown){
+    const bd=cf.value.category_breakdown;
+    const cats=["Food","Shopping","Transport","Utilities","Entertainment","Health","Subscription"].filter(c=>bd[c]>0);
+    const vals=cats.map(c=>Math.round(bd[c]||0));
+    if(vals.some(v=>v>0)){
+      document.getElementById("radar-empty").style.display="none";
+      const ctx=document.getElementById("radarChart").getContext("2d");
+      const COLORS=["#7c5cbf","#059669","#e11d48","#b45309","#0369a1","#7c3aed","#c026d3"];
+      new Chart(ctx,{type:"polarArea",data:{labels:cats,datasets:[{data:vals,backgroundColor:cats.map((_,i)=>COLORS[i%COLORS.length]+"33"),borderColor:cats.map((_,i)=>COLORS[i%COLORS.length]),borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:false,animation:{duration:1000},scales:{r:{ticks:{display:false,backdropColor:"transparent"},grid:{color:"rgba(124,92,191,0.08)"},pointLabels:{display:false}}},plugins:{legend:{position:"bottom",labels:{font:{size:9,family:"Outfit"},color:"#7a6d92",boxWidth:10,padding:8}},tooltip:{backgroundColor:"#fff",titleColor:"#1a1028",bodyColor:"#7a6d92",borderColor:"#ede8f5",borderWidth:1,cornerRadius:10,padding:9,callbacks:{label:c=>c.label+": "+fmt(c.raw)}}}}});
+    }else{document.getElementById("radar-empty").style.display="block";}
+  }else{document.getElementById("radar-empty").style.display="block";}
+
+  // ── 14-DAY FORECAST ──
+  if(fc.status==="fulfilled"&&fc.value.forecast&&fc.value.forecast.length){
+    const pts=fc.value.forecast;
+    _allFcPts=pts;
+    const last=pts[pts.length-1].predicted_balance;
+    const curBal=fc.value.current_balance||0;
+
+    // Current balance card
+    document.getElementById("fc-today").textContent=fmt(curBal);
+    document.getElementById("fc-today").style.color=curBal>=0?"var(--v)":"var(--red)";
+
+    // End balance card
+    document.getElementById("fc-val").textContent=fmt(last);
+    const endCard=document.getElementById("fc-end-card");
+    const endSub=document.getElementById("fc-end-sub");
+    if(last<0){
+      endCard.className="fc-scard end-neg";
+      endSub.textContent="⚠ Projected negative!";
+      document.getElementById("fc-val").style.color="var(--red)";
+    } else {
+      endCard.className="fc-scard end-pos";
+      endSub.textContent="Looking good 👍";
+      document.getElementById("fc-val").style.color="var(--green)";
+    }
+
+    drawForecast(pts,_fcRange);
+    const warns=fc.value.warnings||[];
+    if(warns.length)document.getElementById("fc-warn").innerHTML=
+      '<div style="background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:var(--r);padding:9px 14px;font-size:12.5px;color:var(--amber);display:flex;align-items:center;gap:8px;"><span style="font-size:16px">⚠️</span>'+warns[0]+'</div>';
+  }else{
+    document.getElementById("fc-table-wrap").style.display="none";
+    document.getElementById("fc-empty").style.display="block";
+    document.getElementById("fc-val").textContent="No data";
+  }
+}
+load();
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+</body></html>

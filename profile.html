@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="en"><head>
+  <link rel="manifest" href="pwa-manifest.json"/>
+  <meta name="theme-color" content="#7c5cbf"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="FinVault"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinVault — My Profile</title>
+<link rel="stylesheet" href="shared.css"/>
+<style>
+body{margin:0;}
+.profile-hero{background:linear-gradient(135deg,var(--v-lt),var(--bg-lav));border:1.5px solid var(--lav);border-radius:var(--r2);padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:16px;}
+.p-avatar{width:68px;height:68px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:28px;color:#fff;flex-shrink:0;box-shadow:0 4px 16px var(--v-glow);}
+.p-name{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);}
+.p-email{font-size:13px;color:var(--ink4);margin-top:3px;}
+.p-joined{font-size:11px;color:var(--ink4);margin-top:6px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.stat{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:14px 16px;text-align:center;}
+.stat-val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--v);margin-bottom:3px;}
+.stat-lbl{font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;}
+.section-card{background:var(--white);border:1.5px solid var(--brd);border-radius:var(--r2);padding:20px 22px;margin-bottom:14px;}
+.section-card h3{font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);margin-bottom:14px;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--brd);}
+.info-row:last-child{border:none;}
+.info-lbl{font-size:12.5px;color:var(--ink3);font-weight:600;}
+.info-val{font-size:13px;color:var(--ink);font-family:'JetBrains Mono',monospace;}
+.danger-zone{background:var(--red-bg);border:1.5px solid var(--red-bd);border-radius:var(--r2);padding:18px 22px;}
+.danger-zone h3{font-family:'DM Serif Display',serif;font-size:15px;color:var(--red);margin-bottom:10px;}
+.logout-big{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--red);color:#fff;border:none;border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.logout-big:hover{background:#be123c;transform:translateY(-1px);box-shadow:0 4px 12px rgba(225,29,72,.3);}
+</style>
+</head>
+<body class="app-shell">
+<aside class="sidebar">
+  <a class="sb-brand" href="home_app.html"><div class="sb-gem">💜</div><span class="sb-wordmark">FinVault</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="home_app.html"><div class="sb-ic">🏠</div><span class="sb-label">Home</span></a>
+  <a class="sb-item" href="dashboard.html"><div class="sb-ic">⊞</div><span class="sb-label">Dashboard</span></a>
+  <a class="sb-item" href="transactions.html"><div class="sb-ic">💳</div><span class="sb-label">Transactions</span></a>
+  <a class="sb-item" href="budget.html"><div class="sb-ic">📊</div><span class="sb-label">Budget</span></a>
+  <div class="sb-section-line"></div>
+  <a class="sb-item" href="goals.html"><div class="sb-ic">◇</div><span class="sb-label">Goals</span></a>
+  <a class="sb-item" href="reports.html"><div class="sb-ic">▦</div><span class="sb-label">Reports</span></a>
+  <a class="sb-item" href="insights.html"><div class="sb-ic">◎</div><span class="sb-label">Insights</span></a>
+  <a class="sb-item" href="dues.html"><div class="sb-ic">📅</div><span class="sb-label">Dues</span></a>
+  <a class="sb-item" href="ai_nudges.html"><div class="sb-ic">🔔</div><span class="sb-label">AI Nudges</span></a>
+  
+  <div class="sb-section-line"></div>
+  <a class="sb-item on" href="profile.html"><div class="sb-ic">👤</div><span class="sb-label">Profile</span></a>
+  <a class="sb-item" href="about.html"><div class="sb-ic">ℹ</div><span class="sb-label">About</span></a>
+  <div class="sb-foot">
+    <div class="sb-email-wrap"><div class="sb-avatar" id="sb-av">?</div><div class="sb-email" id="sb-email"></div></div>
+    <button class="btn-out" onclick="logout()" title="Sign Out">↩</button>
+  </div>
+</aside>
+<div class="app-main">
+  <div class="app-topbar">
+    <div><div class="pg-label">Account</div><div class="pg-title">My Profile</div></div>
+    <div class="topbar-right">
+      <button onclick="logout()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--red-bg);border:1.5px solid var(--red-bd);color:var(--red);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">↩ Sign Out</button>
+    </div>
+  </div>
+  <div class="app-body">
+    <div class="profile-hero">
+      <div class="p-avatar" id="p-av">?</div>
+      <div>
+        <div class="p-name" id="p-name">Loading…</div>
+        <div style="font-size:13px;color:var(--ink4);margin-top:3px" id="p-email">—</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <div style="font-size:11.5px;color:var(--v);font-weight:600;background:var(--v-lt);border:1px solid var(--lav);padding:3px 10px;border-radius:20px">✓ Free Plan</div>
+          <div style="font-size:11.5px;color:var(--ink4)">Personal Account</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val" id="s-txn">—</div><div class="stat-lbl">Transactions</div></div>
+      <div class="stat"><div class="stat-val" id="s-inc">—</div><div class="stat-lbl">Total Income</div></div>
+      <div class="stat"><div class="stat-val" id="s-exp">—</div><div class="stat-lbl">Total Spent</div></div>
+      <div class="stat"><div class="stat-val" id="s-hs">—</div><div class="stat-lbl">Health Score</div></div>
+    </div>
+    <div class="section-card">
+      <h3>Account Details</h3>
+      <div class="info-row"><span class="info-lbl">Email</span><span class="info-val" id="d-email">—</span></div>
+      <div class="info-row"><span class="info-lbl">Account Type</span><span class="info-val">Personal</span></div>
+      <div class="info-row"><span class="info-lbl">Plan</span><span class="info-val">Free</span></div>
+      <div class="info-row"><span class="info-lbl">Data Storage</span><span class="info-val">Local (SQLite)</span></div>
+    </div>
+    <div class="danger-zone">
+      <h3>⚠ Sign Out</h3>
+      <p style="font-size:13px;color:var(--red);opacity:.8;margin-bottom:14px;">This will clear your session. Your data stays saved on the server.</p>
+      <button class="logout-big" onclick="logout()">↩ Sign Out of FinVault</button>
+    </div>
+  </div>
+</div>
+<script>
+const API="http://127.0.0.1:5000";
+const tok=()=>localStorage.getItem("authToken");
+const hdr=()=>({"Content-Type":"application/json","Authorization":"Bearer "+tok()});
+const fmt=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+if(!tok()||tok()==="null"||!tok().trim())window.location.href="login.html";
+function logout(){localStorage.clear();window.location.href="login.html";}
+fetch(API+"/me",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  if(!d.email)return;
+  const n=d.email.split("@")[0];
+  // Format name nicely: replace dots/underscores with spaces
+  const nameParts=n.replace(/[._-]/g," ").split(" ");
+  const label=nameParts.map(p=>p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()).join(" ");
+  document.getElementById("p-av").textContent=n[0].toUpperCase();
+  document.getElementById("sb-av").textContent=n[0].toUpperCase();
+  document.getElementById("p-name").textContent=label||"FinVault User";
+  document.getElementById("p-email").textContent=d.email;
+  document.getElementById("d-email").textContent=d.email;
+  document.getElementById("sb-email").textContent=d.email;
+}).catch(()=>{});
+fetch(API+"/cashflow",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  document.getElementById("s-inc").textContent=fmt(d.total_income);
+  document.getElementById("s-exp").textContent=fmt(d.total_expense);
+}).catch(()=>{});
+fetch(API+"/get_transactions",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  document.getElementById("s-txn").textContent=d.length||0;
+}).catch(()=>{});
+fetch(API+"/health_score",{headers:hdr()}).then(r=>r.json()).then(d=>{
+  document.getElementById("s-hs").textContent=(d.score||"—")+(d.grade?" ("+d.grade+")":"");
+}).catch(()=>{});
+</script>
+<script>
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body></html>
